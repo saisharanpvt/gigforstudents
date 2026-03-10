@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GIG | Study Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #030014;
+            --text-main: #FFFFFF;
+            --neon-blue: #00F0FF;
+            --neon-purple: #7000FF;
+            --neon-green: #00FF94;
+            --glass-panel: rgba(255, 255, 255, 0.05);
+            --border-light: rgba(255, 255, 255, 0.1);
+            --text-muted: #94A3B8;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(112, 0, 255, 0.1) 0%, transparent 60%);
+            padding-bottom: 40px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px 20px; position: sticky; top: 0; z-index: 100;
+            background: rgba(3, 0, 20, 0.9); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .back-btn { text-decoration: none; font-size: 20px; color: white; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; }
+
+        /* --- FILTERS --- */
+        .filter-bar { 
+            display: flex; gap: 8px; margin: 20px auto 10px; padding: 0 20px; 
+            max-width: 800px;
+        }
+        .filter-item { 
+            flex: 1; display: flex; align-items: center; gap: 5px; 
+            background: rgba(255,255,255,0.05); padding: 8px 10px; 
+            border-radius: 8px; border: 1px solid var(--border-light);
+        }
+        .filter-item select {
+            background: transparent; border: none; color: white; width: 100%;
+            outline: none; font-size: 12px; font-weight: 600; cursor: pointer;
+        }
+        select option { background: #0F172A; color: white; }
+
+        /* --- DASHBOARD STATS --- */
+        .stats-container {
+            padding: 10px 20px 20px; display: flex; justify-content: center;
+            max-width: 800px; margin: 0 auto;
+        }
+
+        .progress-circle-card {
+            width: 100%; max-width: 300px; background: var(--glass-panel); 
+            border: 1px solid var(--border-light); border-radius: 20px; padding: 30px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            box-shadow: 0 10px 30px rgba(0, 240, 255, 0.05);
+        }
+        
+        .circular-chart {
+            width: 120px; height: 120px; border-radius: 50%;
+            background: conic-gradient(var(--neon-blue) 0%, rgba(255,255,255,0.1) 0%);
+            position: relative; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+            transition: background 0.5s ease;
+        }
+        .circular-chart::before {
+            content: ''; position: absolute; width: 96px; height: 96px;
+            background: #030014; border-radius: 50%;
+        }
+        .percentage-text {
+            position: relative; font-family: 'Space Grotesk', sans-serif;
+            font-size: 28px; font-weight: 700; color: white;
+        }
+        .percentage-label { font-size: 11px; color: #94A3B8; margin-top: 15px; font-weight: bold; letter-spacing: 1px; }
+
+        /* --- SUBJECT CARDS WITH CHAPTERS --- */
+        .section-title { 
+            padding: 0 20px; font-size: 12px; color: var(--neon-blue); font-weight: 700; 
+            text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; 
+            max-width: 800px; margin: 20px auto 10px; 
+        }
+
+        .subjects-grid {
+            padding: 0 20px; display: flex; flex-direction: column; gap: 15px;
+            max-width: 800px; margin: 0 auto 30px;
+        }
+
+        .subject-card {
+            background: var(--glass-panel); border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 18px; transition: 0.3s;
+        }
+        .subject-card:hover { border-color: rgba(0, 240, 255, 0.3); }
+        
+        .sub-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px; }
+        .sub-name { font-weight: 700; font-size: 15px; color: white; display: flex; flex-direction: column; }
+        .sub-code { font-size: 10px; color: var(--neon-gold); font-family: 'Fira Code', monospace; margin-top: 3px; }
+        .sub-val { font-family: 'Space Grotesk', sans-serif; color: var(--neon-blue); font-weight: 700; font-size: 18px; }
+
+        /* Custom Linear Progress Bar */
+        .progress-track {
+            width: 100%; height: 6px; background: rgba(255,255,255,0.1);
+            border-radius: 3px; margin-bottom: 15px; overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            border-radius: 3px; transition: width 0.4s ease; width: 0%;
+        }
+
+        /* Chapter Checklist */
+        .chapter-grid {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
+        }
+        .chapter-item {
+            display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted);
+            cursor: pointer; padding: 8px 10px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid transparent;
+            transition: 0.2s;
+        }
+        .chapter-item:hover { background: rgba(255,255,255,0.05); }
+        .chapter-item.active { color: white; border-color: rgba(0, 240, 255, 0.2); background: rgba(0, 240, 255, 0.05); }
+        
+        /* Custom Checkbox */
+        .chapter-checkbox {
+            appearance: none; width: 16px; height: 16px; border: 1px solid #666; border-radius: 4px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; outline: none; transition: 0.2s;
+            margin: 0;
+        }
+        .chapter-checkbox:checked { background: var(--neon-blue); border-color: var(--neon-blue); }
+        .chapter-checkbox:checked::after { content: '✓'; color: black; font-size: 10px; font-weight: bold; }
+
+        /* --- TO-DO LIST --- */
+        .todo-container { padding: 0 20px; max-width: 800px; margin: 0 auto; }
+        .todo-input-group { display: flex; gap: 10px; margin-bottom: 15px; }
+        .todo-input {
+            flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light);
+            color: white; padding: 12px; border-radius: 12px; outline: none; font-size: 13px;
+        }
+        .add-btn {
+            background: linear-gradient(135deg, var(--neon-purple), #9D00FF); color: white; border: none;
+            padding: 0 20px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 18px;
+        }
+        .task-item {
+            display: flex; align-items: center; gap: 12px; background: rgba(255,255,255,0.02); padding: 12px;
+            border-radius: 12px; margin-bottom: 8px; border: 1px solid transparent; transition: 0.3s;
+        }
+        .task-item.completed { opacity: 0.5; text-decoration: line-through; border-color: var(--neon-green); }
+        .checkbox {
+            width: 20px; height: 20px; border: 2px solid var(--neon-purple); border-radius: 6px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+        }
+        .checkbox.checked { background: var(--neon-purple); }
+        
+        .loading-state { text-align: center; padding: 40px; color: var(--neon-blue); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="homepage.html" class="back-btn">←</a>
+        <div class="page-title">Study Tracker</div>
+    </header>
+
+    <div class="filter-bar">
+        <div class="filter-item">
+            <span>📚</span>
+            <select id="filterCurriculum" onchange="applyFilters()">
+                <option value="all">All Curr</option>
+                <option value="C-21">C-21</option>
+                <option value="C-24">C-24</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <span>🏛️</span>
+            <select id="filterBranch" onchange="applyFilters()">
+                <option value="all">All Branch</option>
+                <option value="ECE">ECE</option><option value="CSE">CSE</option>
+                <option value="EVE">EVE</option><option value="EIE">EIE</option>
+                <option value="ESE">ESE</option><option value="CCB">CCB</option>
+                <option value="CPS">CPS</option><option value="AI">AI</option>
+                <option value="BME">BME</option><option value="EEE">EEE</option>
+                <option value="CE">CE</option><option value="HS">HS</option>
+            </select>
+        </div>
+        <div class="filter-item">
+            <span>📅</span>
+            <select id="filterSem" onchange="applyFilters()">
+                <option value="all">All Sem</option>
+                <option value="1st Sem">1st Sem</option><option value="2nd Sem">2nd Sem</option>
+                <option value="3rd Sem">3rd Sem</option><option value="4th Sem">4th Sem</option>
+                <option value="5th Sem">5th Sem</option><option value="6th Sem">6th Sem</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="stats-container">
+        <div class="progress-circle-card">
+            <div class="circular-chart" id="mainChart">
+                <div class="percentage-text" id="totalPercent">0%</div>
+            </div>
+            <div class="percentage-label">TOTAL SYLLABUS COMPLETED</div>
+        </div>
+    </div>
+
+    <div class="section-title">Subject Progress</div>
+    <div class="subjects-grid" id="subjectList">
+        <div class="loading-state">Fetching Syllabus...</div>
+    </div>
+
+    <div class="section-title">Today's Missions</div>
+    <div class="todo-container">
+        <div class="todo-input-group">
+            <input type="text" id="newGoal" class="todo-input" placeholder="Add a new study goal...">
+            <button class="add-btn" onclick="addGoal()">+</button>
+        </div>
+        <div id="goalsList"></div>
+    </div>
+
+    <script src="api.js"></script>
+
+    <script>
+        // Security check
+        window.addEventListener('pageshow', function (event) {
+            if (!getGIGSession()) window.location.replace('login.html');
+        });
+
+        let currentUser = null;
+        let allSubjectsData = []; 
+        
+        // This stores the progress of checkboxes locally. 
+        let chapterProgress = JSON.parse(localStorage.getItem('gigChapterProgress')) || {};
+        let goals = JSON.parse(localStorage.getItem('gigGoals')) || [];
+
+        window.onload = async function() {
+            currentUser = getGIGSession(); 
+            if(!currentUser) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            // Auto-fill filters from user profile
+            document.getElementById('filterCurriculum').value = currentUser.curriculum || 'all';
+            document.getElementById('filterBranch').value = currentUser.branch || 'all';
+            document.getElementById('filterSem').value = currentUser.sem || 'all';
+
+            // Load To-Do list
+            renderGoals();
+
+            // Fetch subjects from Google Sheets (Tab name: "Branches & Subjects")
+            allSubjectsData = await GIG_API.getResources('Branches & Subjects');
+            
+            if(!Array.isArray(allSubjectsData) || allSubjectsData.error) {
+                document.getElementById('subjectList').innerHTML = '<div class="loading-state" style="color:var(--danger)">Failed to load subjects. Check connection.</div>';
+                return;
+            }
+
+            applyFilters();
+        };
+
+        // --- FILTER & RENDER LOGIC ---
+        function applyFilters() {
+            let curr = document.getElementById('filterCurriculum').value;
+            let branch = document.getElementById('filterBranch').value;
+            let sem = document.getElementById('filterSem').value;
+
+            // Search for the specific row matching the Curriculum, Sem, and Branch
+            let matchedRow = allSubjectsData.find(row => {
+                if(!row || row.length < 3) return false;
+                
+                // Based on your Google Sheet: Col A (0)=Curr, Col B (1)=Semester, Col C (2)=Branch
+                let matchCurr = (curr === 'all') || (row[0].toString().toLowerCase().trim() === curr.toLowerCase());
+                let matchSem = (sem === 'all') || (row[1].toString().toLowerCase().trim() === sem.toLowerCase());
+                let matchBranch = (branch === 'all') || (row[2].toString().toLowerCase().trim() === branch.toLowerCase());
+                
+                return matchCurr && matchBranch && matchSem;
+            });
+
+            // Extract all subjects from that row (starting from Column D / index 3)
+            let subjectList = [];
+            if (matchedRow) {
+                for(let i = 3; i < matchedRow.length; i++) {
+                    if(matchedRow[i] && matchedRow[i].toString().trim() !== "") {
+                        subjectList.push(matchedRow[i].toString().trim());
+                    }
+                }
+            }
+
+            renderSubjects(subjectList, curr, branch, sem);
+        }
+
+        function renderSubjects(subjectList, curr, branch, sem) {
+            const container = document.getElementById('subjectList');
+            
+            if(subjectList.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:var(--text-muted); padding:20px; font-size:13px;">No subjects found for this selection.<br>Try adjusting the filters above.</div>';
+                document.getElementById('totalPercent').innerText = "0%";
+                document.getElementById('mainChart').style.background = `conic-gradient(var(--neon-blue) 0%, rgba(255,255,255,0.1) 0%)`;
+                return;
+            }
+
+            let html = '';
+            let totalChapters = 0;
+            let completedChapters = 0;
+
+            subjectList.forEach((subString, subIndex) => {
+                
+                // Automatically separate "EC-302 Digital Electronics" into Code and Name
+                let parts = subString.split(" ");
+                let subCode = parts[0]; 
+                let subName = parts.slice(1).join(" "); 
+                
+                // Fallback if there is no space in the cell
+                if(!subName) { subName = subCode; subCode = ""; }
+                
+                // Create a unique ID for local storage so progress saves per specific subject
+                let uniqueKey = `${curr}_${branch}_${sem}_${subCode}`.replace(/[^a-zA-Z0-9]/g, '_');
+                
+                // Initialize memory for this subject if it doesn't exist (6 chapters)
+                if(!chapterProgress[uniqueKey]) {
+                    chapterProgress[uniqueKey] = [false, false, false, false, false, false];
+                }
+
+                // Calculate progress for this subject
+                let checkedCount = chapterProgress[uniqueKey].filter(Boolean).length;
+                let subPercent = Math.round((checkedCount / 6) * 100);
+                
+                totalChapters += 6;
+                completedChapters += checkedCount;
+
+                // Build Chapter Checkboxes HTML
+                let chaptersHtml = '';
+                for(let i=0; i<6; i++) {
+                    let isChecked = chapterProgress[uniqueKey][i];
+                    chaptersHtml += `
+                        <label class="chapter-item ${isChecked ? 'active' : ''}">
+                            <input type="checkbox" class="chapter-checkbox" 
+                                ${isChecked ? 'checked' : ''} 
+                                onchange="toggleChapter('${uniqueKey}', ${i})">
+                            Chapter ${i + 1}
+                        </label>
+                    `;
+                }
+
+                html += `
+                    <div class="subject-card">
+                        <div class="sub-header">
+                            <div class="sub-name">${subName} <span class="sub-code">${subCode ? 'Code: ' + subCode : ''}</span></div>
+                            <div class="sub-val" id="val-${uniqueKey}">${subPercent}%</div>
+                        </div>
+                        <div class="progress-track">
+                            <div class="progress-fill" id="fill-${uniqueKey}" style="width: ${subPercent}%"></div>
+                        </div>
+                        <div class="chapter-grid">
+                            ${chaptersHtml}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+
+            // Update Overall Main Dashboard Chart
+            let overallPercent = totalChapters === 0 ? 0 : Math.round((completedChapters / totalChapters) * 100);
+            document.getElementById('totalPercent').innerText = overallPercent + "%";
+            document.getElementById('mainChart').style.background = `conic-gradient(var(--neon-blue) ${overallPercent}%, rgba(255,255,255,0.1) ${overallPercent}%)`;
+        }
+
+        // --- CHAPTER TOGGLE LOGIC ---
+        function toggleChapter(uniqueKey, chapterIndex) {
+            // Update the state
+            chapterProgress[uniqueKey][chapterIndex] = !chapterProgress[uniqueKey][chapterIndex];
+            
+            // Save to Local Storage
+            localStorage.setItem('gigChapterProgress', JSON.stringify(chapterProgress));
+            
+            // Re-render everything to update UI instantly
+            applyFilters(); 
+        }
+
+        // --- TO-DO MISSIONS LOGIC ---
+        function renderGoals() {
+            const list = document.getElementById('goalsList');
+            list.innerHTML = '';
+            
+            if (goals.length === 0) {
+                list.innerHTML = '<div style="text-align:center; color:#555; font-size:12px; margin-top:20px;">No missions yet. Add one!</div>';
+                return;
+            }
+
+            goals.forEach((goal, index) => {
+                list.innerHTML += `
+                    <div class="task-item ${goal.done ? 'completed' : ''}" onclick="toggleGoal(${index})">
+                        <div class="checkbox ${goal.done ? 'checked' : ''}">
+                            ${goal.done ? '✓' : ''}
+                        </div>
+                        <span style="flex:1; font-size:14px;">${goal.text}</span>
+                        <button onclick="deleteGoal(event, ${index})" style="background:none; border:none; color:var(--danger); font-size:16px; cursor:pointer;">🗑</button>
+                    </div>
+                `;
+            });
+        }
+
+        function addGoal() {
+            const input = document.getElementById('newGoal');
+            if(input.value.trim() === "") return;
+            
+            goals.push({ text: input.value, done: false });
+            input.value = "";
+            localStorage.setItem('gigGoals', JSON.stringify(goals));
+            renderGoals();
+        }
+
+        function toggleGoal(index) {
+            goals[index].done = !goals[index].done;
+            localStorage.setItem('gigGoals', JSON.stringify(goals));
+            renderGoals();
+        }
+
+        function deleteGoal(event, index) {
+            event.stopPropagation(); // Prevents toggleGoal from firing
+            goals.splice(index, 1);
+            localStorage.setItem('gigGoals', JSON.stringify(goals));
+            renderGoals();
+        }
+    </script>
+</body>
+</html>

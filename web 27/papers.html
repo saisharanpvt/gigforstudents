@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Previous Year Papers - GIG</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Restored the classic GIG Premium Theme Colors */
+            --bg-deep: #030014;
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --neon-blue: #00F0FF; 
+            --neon-purple: #7000FF;
+            --glass-panel: rgba(255, 255, 255, 0.03);
+            --border-light: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            /* Restored the beautiful background glow! */
+            background-image: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.1) 0%, transparent 60%);
+            background-attachment: fixed;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex; align-items: center; gap: 15px;
+            padding: 20px; position: sticky; top: 0; z-index: 100;
+            background: rgba(3, 0, 20, 0.9); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .back-btn { text-decoration: none; font-size: 22px; color: white; font-weight: bold; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: white; }
+
+        /* --- SELECTION BARS --- */
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+        .control-group { margin-bottom: 20px; }
+        .control-group label {
+            display: block; font-size: 11px; color: var(--neon-blue);
+            font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+        .control-group select {
+            width: 100%; padding: 16px 18px;
+            background-color: var(--glass-panel);
+            border: 1px solid var(--border-light);
+            border-radius: 12px; color: white; font-size: 15px; font-weight: 600;
+            outline: none; appearance: auto; cursor: pointer;
+            transition: 0.3s;
+        }
+        .control-group select:focus { border-color: var(--neon-blue); background-color: rgba(0, 240, 255, 0.05); }
+        select option { background: #0F172A; color: white; }
+
+        /* --- EMPTY / LOADING STATE --- */
+        .status-container {
+            text-align: center; margin-top: 80px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            animation: fadeIn 0.5s ease;
+        }
+        .folder-icon { font-size: 55px; margin-bottom: 15px; display: block; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.4)); }
+        .status-text { color: var(--text-muted); font-size: 14px; font-weight: 500; }
+
+        /* --- RESULTS CARDS --- */
+        .papers-list { display: flex; flex-direction: column; gap: 12px; margin-top: 10px; }
+        .pdf-card {
+            background: var(--glass-panel); border: 1px solid var(--border-light);
+            border-radius: 12px; padding: 18px; display: flex; align-items: center; justify-content: space-between;
+            transition: 0.2s; animation: slideUp 0.3s ease;
+        }
+        .pdf-card:hover { border-color: var(--neon-blue); transform: translateX(5px); background: rgba(255,255,255,0.06); }
+        .pdf-card:active { transform: scale(0.98); }
+        
+        .pdf-title { font-weight: 700; color: #fff; font-size: 15px; margin-bottom: 4px; }
+        .pdf-meta { font-size: 12px; color: var(--text-muted); font-family: 'Space Grotesk', sans-serif; }
+        
+        .btn-download {
+            background: rgba(0, 240, 255, 0.1); color: var(--neon-blue);
+            border: 1px solid rgba(0, 240, 255, 0.3); text-decoration: none;
+            padding: 10px 18px; border-radius: 8px; font-weight: 800; font-size: 11px;
+            text-transform: uppercase; display: inline-block; transition: 0.2s;
+        }
+        .btn-download:hover { background: var(--neon-blue); color: #000; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="homepage.html" class="back-btn">←</a>
+        <div class="page-title">Previous Year Papers</div>
+    </header>
+
+    <div class="container">
+        <div class="control-group">
+            <label>Select Branch</label>
+            <select id="branchSelect" onchange="filterPapers()">
+                <option value="">Select Branch</option>
+                <option value="ECE">ECE</option><option value="CSE">CSE</option>
+                <option value="EVE">EVE</option><option value="EIE">EIE</option>
+                <option value="ESE">ESE</option><option value="CCB">CCB</option>
+                <option value="CPS">CPS</option><option value="AI">AI</option>
+                <option value="BME">BME</option><option value="EEE">EEE</option>
+                <option value="CE">CE</option><option value="HS">HS</option>
+            </select>
+        </div>
+
+        <div class="control-group">
+            <label>Select Semester</label>
+            <select id="semSelect" onchange="filterPapers()">
+                <option value="">Select Semester</option>
+                <option value="1st Sem">1st Sem</option><option value="2nd Sem">2nd Sem</option>
+                <option value="3rd Sem">3rd Sem</option><option value="4th Sem">4th Sem</option>
+                <option value="5th Sem">5th Sem</option><option value="6th Sem">6th Sem</option>
+            </select>
+        </div>
+
+        <div id="contentArea">
+            <div class="status-container" id="statusMessage">
+                <span class="folder-icon">📁</span>
+                <div class="status-text">Fetching papers from database...</div>
+            </div>
+            <div class="papers-list" id="papersContainer"></div>
+        </div>
+    </div>
+
+    <script src="api.js"></script>
+
+    <script>
+        // Security check
+        window.addEventListener('pageshow', function (event) {
+            if (!getGIGSession()) window.location.replace('login.html');
+        });
+
+        let allPapersData = [];
+
+        window.onload = async function() {
+            let currentUser = getGIGSession(); 
+            if(!currentUser) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            const branchDrop = document.getElementById('branchSelect');
+            const semDrop = document.getElementById('semSelect');
+
+            // 1. AUTO-FILL USER DATA
+            if(currentUser.branch) branchDrop.value = currentUser.branch;
+            if(currentUser.sem) semDrop.value = currentUser.sem;
+
+            // 2. FETCH DATA FROM GOOGLE SHEETS
+            allPapersData = await GIG_API.getResources('Preavious Year Papers');
+            
+            if(!Array.isArray(allPapersData) || allPapersData.error) {
+                showStatus("⚠️", "Network Error. Unable to fetch papers.");
+                return;
+            }
+
+            // 3. APPLY FILTERS IMMEDIATELY
+            filterPapers();
+        };
+
+        function filterPapers() {
+            const selectedBranch = document.getElementById('branchSelect').value;
+            const selectedSem = document.getElementById('semSelect').value;
+            
+            const container = document.getElementById('papersContainer');
+            const statusDiv = document.getElementById('statusMessage');
+
+            // If either dropdown is empty
+            if(!selectedBranch || !selectedSem) {
+                container.innerHTML = '';
+                showStatus("📁", "Select your Branch & Semester to access papers.");
+                return;
+            }
+
+            // Filter data based on Google Sheets columns: Col B (1) = Branch, Col C (2) = Sem
+            let filtered = allPapersData.filter(row => {
+                if(!row || row.length < 5) return false;
+                let rowBranch = row[1].toString().toLowerCase().trim();
+                let rowSem = row[2].toString().toLowerCase().trim();
+                
+                return (rowBranch === selectedBranch.toLowerCase().trim()) && 
+                       (rowSem === selectedSem.toLowerCase().trim());
+            });
+
+            if(filtered.length === 0) {
+                container.innerHTML = '';
+                showStatus("📄", "No papers found for this specific branch and semester yet.");
+                return;
+            }
+
+            // Render matching papers
+            statusDiv.style.display = 'none'; 
+            let html = '';
+            
+            filtered.forEach(row => {
+                // Structure: 0=Curr, 1=Branch, 2=Sem, 3=Subject, 4=Link
+                let subject = row[3];
+                let link = row[4];
+                let curr = row[0];
+
+                html += `
+                    <div class="pdf-card">
+                        <div>
+                            <div class="pdf-title">${subject}</div>
+                            <div class="pdf-meta">${curr} Curriculum</div>
+                        </div>
+                        <a href="${link}" target="_blank" class="btn-download">VIEW</a>
+                    </div>
+                `;
+            });
+            
+            container.innerHTML = html;
+        }
+
+        function showStatus(icon, text) {
+            document.getElementById('papersContainer').innerHTML = '';
+            const statusDiv = document.getElementById('statusMessage');
+            statusDiv.style.display = 'flex';
+            statusDiv.innerHTML = `
+                <span class="folder-icon">${icon}</span>
+                <div class="status-text">${text}</div>
+            `;
+        }
+    </script>
+</body>
+</html>

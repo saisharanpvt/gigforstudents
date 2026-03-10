@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>E-Books - GIG</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            /* Premium GIG Theme Colors */
+            --bg-deep: #030014;
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --neon-blue: #00F0FF; 
+            --neon-purple: #7000FF;
+            --glass-panel: rgba(255, 255, 255, 0.03);
+            --border-light: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.1) 0%, transparent 60%);
+            background-attachment: fixed;
+            padding-bottom: 40px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex; align-items: center; gap: 15px;
+            padding: 20px; position: sticky; top: 0; z-index: 100;
+            background: rgba(3, 0, 20, 0.9); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .back-btn { text-decoration: none; font-size: 22px; color: white; font-weight: bold; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 18px; font-weight: 700; color: white; }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+        /* --- SMART FILTERS & SEARCH --- */
+        .search-container { 
+            position: sticky; top: 70px; z-index: 10; padding: 10px 0 20px 0;
+            /* FIXED: Changed to transparent with a glass blur so the background glow shows! */
+            background: transparent; 
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+        }
+        
+        .filter-bar { display: flex; gap: 8px; margin-bottom: 15px; }
+        .filter-item { 
+            flex: 1; display: flex; align-items: center; gap: 5px; 
+            background: rgba(255,255,255,0.05); padding: 10px; 
+            border-radius: 8px; border: 1px solid var(--border-light);
+        }
+        .filter-item select {
+            background: transparent; border: none; color: white; width: 100%;
+            outline: none; font-size: 12px; font-weight: 600; cursor: pointer;
+        }
+        select option { background: #0F172A; color: white; }
+
+        .search-input {
+            width: 100%; padding: 14px 15px; background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-light); border-radius: 12px; color: white; font-size: 14px; outline: none;
+            transition: 0.3s;
+        }
+        .search-input:focus { border-color: var(--neon-blue); background: rgba(0, 240, 255, 0.05); }
+
+        /* --- E-BOOK CARDS --- */
+        .ebooks-list { display: flex; flex-direction: column; gap: 12px; }
+        
+        .pdf-card {
+            background: var(--glass-panel); border: 1px solid var(--border-light);
+            border-radius: 12px; padding: 18px; display: flex; align-items: center; justify-content: space-between;
+            transition: 0.2s; animation: slideUp 0.3s ease; gap: 12px;
+        }
+        .pdf-card:hover { border-color: var(--neon-blue); transform: translateX(5px); background: rgba(255,255,255,0.06); }
+        .pdf-card:active { transform: scale(0.98); }
+        
+        .pdf-icon { font-size: 24px; }
+        .pdf-info { flex: 1; }
+        .pdf-title { font-weight: 700; color: #fff; font-size: 15px; margin-bottom: 4px; }
+        .pdf-meta { font-size: 11px; color: var(--text-muted); font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
+        
+        .btn-download {
+            background: rgba(0, 240, 255, 0.1); color: var(--neon-blue);
+            border: 1px solid rgba(0, 240, 255, 0.3); text-decoration: none;
+            padding: 10px 16px; border-radius: 8px; font-weight: 800; font-size: 11px;
+            text-transform: uppercase; display: inline-block; transition: 0.2s; text-align: center;
+        }
+        .btn-download:hover { background: var(--neon-blue); color: #000; }
+
+        .loading-state { text-align: center; padding: 40px; color: var(--neon-blue); font-weight: bold; font-size: 14px; }
+        .empty-state { text-align: center; padding: 30px; color: var(--text-muted); font-size: 13px; line-height: 1.5; }
+
+        @keyframes slideUp { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="homepage.html" class="back-btn">←</a>
+        <div class="page-title">E-Books & Textbooks</div>
+    </header>
+
+    <div class="container">
+        
+        <div class="search-container">
+            <div class="filter-bar">
+                <div class="filter-item">
+                    <span>📚</span>
+                    <select id="filterCurriculum" onchange="applyFilters()">
+                        <option value="all">All Curr</option>
+                        <option value="C-21">C-21</option>
+                        <option value="C-24">C-24</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <span>🏛️</span>
+                    <select id="filterBranch" onchange="applyFilters()">
+                        <option value="all">All Branch</option>
+                        <option value="ECE">ECE</option><option value="CSE">CSE</option>
+                        <option value="EVE">EVE</option><option value="EIE">EIE</option>
+                        <option value="ESE">ESE</option><option value="CCB">CCB</option>
+                        <option value="CPS">CPS</option><option value="AI">AI</option>
+                        <option value="BME">BME</option><option value="EEE">EEE</option>
+                        <option value="CE">CE</option><option value="HS">HS</option>
+                    </select>
+                </div>
+                <div class="filter-item">
+                    <span>📅</span>
+                    <select id="filterSem" onchange="applyFilters()">
+                        <option value="all">All Sem</option>
+                        <option value="1st Sem">1st Sem</option><option value="2nd Sem">2nd Sem</option>
+                        <option value="3rd Sem">3rd Sem</option><option value="4th Sem">4th Sem</option>
+                        <option value="5th Sem">5th Sem</option><option value="6th Sem">6th Sem</option>
+                    </select>
+                </div>
+            </div>
+
+            <input type="text" class="search-input" id="searchEbook" placeholder="Search for e-books or subjects..." onkeyup="applyFilters()">
+        </div>
+
+        <div class="ebooks-list" id="ebooksContainer">
+            <div class="loading-state">Fetching E-Books Library...</div>
+        </div>
+
+    </div>
+
+    <script src="api.js"></script>
+
+    <script>
+        // Secure Back-button logic
+        window.addEventListener('pageshow', function (event) {
+            if (!getGIGSession()) window.location.replace('login.html');
+        });
+
+        let currentUser = null;
+        let allEbooksData = [];
+
+        window.onload = async function() {
+            currentUser = getGIGSession(); 
+            if(!currentUser) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            // 1. Auto-fill filters from user profile
+            document.getElementById('filterCurriculum').value = currentUser.curriculum || 'all';
+            document.getElementById('filterBranch').value = currentUser.branch || 'all';
+            document.getElementById('filterSem').value = currentUser.sem || 'all';
+
+            // 2. Fetch data from Google Sheets ("E-Books" tab)
+            allEbooksData = await GIG_API.getResources('E-Books');
+            
+            if(!Array.isArray(allEbooksData) || allEbooksData.error) {
+                document.getElementById('ebooksContainer').innerHTML = '<div class="loading-state" style="color:var(--danger)">Failed to load data. Please check your connection.</div>';
+                return;
+            }
+
+            // 3. Render immediately based on user's auto-filled data
+            applyFilters();
+        };
+
+        function applyFilters() {
+            const container = document.getElementById('ebooksContainer');
+            let query = document.getElementById('searchEbook').value.toLowerCase().trim();
+            
+            let curr = document.getElementById('filterCurriculum').value;
+            let branch = document.getElementById('filterBranch').value;
+            let sem = document.getElementById('filterSem').value;
+
+            // Try to get results using the active filters
+            let filtered = getFilteredResults(query, curr, branch, sem);
+
+            // SMART SEARCH LOGIC: If search yields no results in specific sem/branch, search the entire database
+            if (query && filtered.length === 0) {
+                let globalSearch = getFilteredResults(query, 'all', 'all', 'all');
+                
+                if (globalSearch.length > 0) {
+                    // Visually reset dropdowns so the user knows global search kicked in
+                    document.getElementById('filterCurriculum').value = 'all';
+                    document.getElementById('filterBranch').value = 'all';
+                    document.getElementById('filterSem').value = 'all';
+                    filtered = globalSearch; 
+                }
+            }
+
+            renderEbooks(filtered);
+        }
+
+        function getFilteredResults(query, curr, branch, sem) {
+            return allEbooksData.filter(row => {
+                if(!row || row.length < 5) return false;
+
+                // Structure based on Google Sheets: 0=Curr, 1=Branch, 2=Sem, 3=Subject, 4=Link
+                let rowCurr = (row[0] || "").toString().toLowerCase().trim();
+                let rowBranch = (row[1] || "").toString().toLowerCase().trim();
+                let rowSem = (row[2] || "").toString().toLowerCase().trim();
+                let rowSub = (row[3] || "").toString().toLowerCase().trim();
+
+                let matchCurr = (curr === 'all') || (rowCurr === curr.toLowerCase());
+                let matchBranch = (branch === 'all') || (rowBranch === branch.toLowerCase());
+                let matchSem = (sem === 'all') || (rowSem === sem.toLowerCase());
+                
+                let matchFilters = matchCurr && matchBranch && matchSem;
+
+                // Match Search box
+                let matchQuery = true;
+                if(query) {
+                    let combinedStr = `${rowCurr} ${rowBranch} ${rowSem} ${rowSub}`.toLowerCase();
+                    matchQuery = combinedStr.includes(query);
+                }
+
+                return matchFilters && matchQuery;
+            });
+        }
+
+        function renderEbooks(list) {
+            const container = document.getElementById('ebooksContainer');
+            
+            if(list.length === 0) {
+                container.innerHTML = '<div class="empty-state">📖 No E-Books found for this specific selection.<br><br>Try adjusting the filters above or use the search bar to explore the entire library.</div>';
+                return;
+            }
+
+            let html = '';
+            list.forEach(row => {
+                let curriculum = row[0];
+                let branch = row[1];
+                let sem = row[2];
+                let subject = row[3];
+                let link = row[4];
+
+                html += `
+                    <div class="pdf-card">
+                        <span class="pdf-icon">📖</span>
+                        <div class="pdf-info">
+                            <div class="pdf-title">${subject}</div>
+                            <div class="pdf-meta">${curriculum} • ${branch} • ${sem}</div>
+                        </div>
+                        <a href="${link}" target="_blank" class="btn-download">READ NOW</a>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+    </script>
+</body>
+</html>

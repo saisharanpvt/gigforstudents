@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GIG - Resume Builder</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #030014;
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --neon-blue: #00F0FF;
+            --neon-purple: #7000FF;
+            --glass-panel: rgba(255, 255, 255, 0.05);
+            --border-light: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(112, 0, 255, 0.1) 0%, transparent 60%);
+            display: flex; flex-direction: column;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px 20px; background: rgba(3, 0, 20, 0.95);
+            border-bottom: 1px solid var(--border-light); position: sticky; top: 0; z-index: 100;
+        }
+        .back-btn { text-decoration: none; font-size: 22px; color: white; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; }
+
+        /* --- LAYOUT --- */
+        .builder-container {
+            display: flex; flex-wrap: wrap; gap: 20px; padding: 20px;
+            max-width: 1200px; margin: 0 auto; width: 100%;
+        }
+
+        .controls-panel { flex: 1; min-width: 300px; display: flex; flex-direction: column; gap: 20px; }
+        .preview-panel { flex: 1.5; min-width: 350px; display: flex; flex-direction: column; align-items: center; }
+
+        /* CONTROLS STYLING */
+        .panel-card {
+            background: var(--glass-panel); border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 20px;
+        }
+        .panel-title { font-weight: 700; color: var(--neon-blue); margin-bottom: 15px; }
+
+        .upload-zone {
+            border: 2px dashed var(--border-light); border-radius: 12px;
+            padding: 30px; text-align: center; transition: 0.3s;
+            cursor: pointer; background: rgba(0,0,0,0.2);
+        }
+        .upload-zone:hover { border-color: var(--neon-blue); background: rgba(0, 240, 255, 0.05); }
+        .upload-icon { font-size: 32px; margin-bottom: 10px; display: block; }
+
+        .skills-input-group { display: flex; gap: 10px; }
+        .skill-input { 
+            flex: 1; background: rgba(255,255,255,0.05); border: 1px solid var(--border-light);
+            padding: 10px; border-radius: 8px; color: white; outline: none;
+        }
+        .btn-add {
+            background: var(--neon-purple); color: white; border: none;
+            padding: 0 15px; border-radius: 8px; cursor: pointer; font-weight: 700;
+        }
+        .skills-list { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+        .skill-tag {
+            background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 20px;
+            font-size: 11px; cursor: pointer; border: 1px solid transparent;
+        }
+
+        /* --- A4 PAPER (NEW SHADED DESIGN) --- */
+        .a4-paper {
+            width: 100%; max-width: 595px; aspect-ratio: 1 / 1.414;
+            background: #ffffff; color: #1e293b;
+            box-shadow: 0 0 60px rgba(0,0,0,0.6); transform-origin: top center;
+            overflow: hidden; font-family: 'Plus Jakarta Sans', sans-serif;
+            position: relative; display: flex; flex-direction: column;
+        }
+
+        /* 1. Neon Top Bar */
+        .a4-paper::before {
+            content: ''; width: 100%; height: 8px;
+            background: linear-gradient(90deg, #00F0FF, #7000FF);
+        }
+
+        /* 2. Shaded Header */
+        .res-header {
+            background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+            padding: 30px 40px; border-bottom: 1px solid #e2e8f0;
+        }
+        .res-name { font-size: 26px; font-weight: 800; text-transform: uppercase; color: #0f172a; letter-spacing: -0.5px; }
+        .res-sub { font-size: 14px; color: #64748b; margin-top: 4px; font-weight: 600; }
+        .res-contact { font-size: 12px; color: #475569; margin-top: 8px; display: flex; gap: 15px; }
+
+        /* 3. Main Body */
+        .res-body {
+            padding: 30px 40px; flex: 1;
+            background-color: #fff;
+        }
+
+        .res-section { margin-bottom: 25px; }
+        
+        /* Shaded Section Titles */
+        .res-sec-title { 
+            font-size: 12px; font-weight: 800; text-transform: uppercase; 
+            color: #334155; margin-bottom: 12px; letter-spacing: 1px;
+            background: #f1f5f9; display: inline-block; padding: 4px 10px; border-radius: 4px;
+        }
+        
+        .res-item { margin-bottom: 12px; }
+        .res-item-title { font-weight: 700; font-size: 14px; color: #000; }
+        .res-item-sub { font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 2px; }
+        .res-item-desc { font-size: 12px; color: #334155; line-height: 1.5; }
+
+        .res-skills { display: flex; flex-wrap: wrap; gap: 6px; }
+        .res-skill-badge { 
+            background: #f8fafc; border: 1px solid #e2e8f0;
+            padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; color: #475569;
+        }
+
+        /* ACTIONS */
+        .download-bar {
+            margin-top: 20px; width: 100%; max-width: 595px;
+            display: flex; gap: 10px;
+        }
+        .btn-action {
+            flex: 1; padding: 12px; border-radius: 10px; border: none; font-weight: 700;
+            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+        .btn-dl { background: var(--neon-blue); color: black; }
+        .btn-share { background: rgba(255,255,255,0.1); color: white; border: 1px solid white; }
+
+        /* LOADING */
+        .processing-overlay {
+            position: absolute; inset: 0; background: rgba(255,255,255,0.9);
+            display: none; align-items: center; justify-content: center; flex-direction: column;
+            z-index: 10; color: #333;
+        }
+        .spinner {
+            width: 40px; height: 40px; border: 4px solid var(--neon-blue);
+            border-top-color: transparent; border-radius: 50%; animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="homepage.html" class="back-btn">←</a>
+        <div class="page-title">Resume Builder</div>
+    </header>
+
+    <div class="builder-container">
+        
+        <div class="controls-panel">
+            <div class="panel-card">
+                <div class="panel-title">📂 Add Projects</div>
+                <div class="upload-zone" onclick="document.getElementById('projInput').click()">
+                    <span class="upload-icon">☁️</span>
+                    <div style="font-size:12px; color:#94A3B8;">Drop PDF/PPT or Click<br>(Auto-Extracts Info)</div>
+                    <input type="file" id="projInput" style="display: none;" onchange="handleFile(this)">
+                </div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-title">⚡ Skills</div>
+                <div class="skills-input-group">
+                    <input type="text" id="skillInput" class="skill-input" placeholder="e.g. Java, AutoCAD">
+                    <button class="btn-add" onclick="addSkill()">+</button>
+                </div>
+                <div class="skills-list" id="skillsListContainer"></div>
+            </div>
+
+            <div class="panel-card">
+                <div class="panel-title">📝 Summary</div>
+                <textarea id="summaryInput" class="skill-input" rows="4" placeholder="Brief professional summary..." oninput="updateResume()"></textarea>
+            </div>
+        </div>
+
+        <div class="preview-panel">
+            
+            <div class="a4-paper" id="resumePreview">
+                <div class="processing-overlay" id="loadingOverlay">
+                    <div class="spinner"></div>
+                    <div style="margin-top:10px; font-weight:700;">AI Analyzing Document...</div>
+                </div>
+
+                <div class="res-header">
+                    <div class="res-name" id="rName">Student Name</div>
+                    <div class="res-sub" id="rBranch">Diploma in Engineering</div>
+                    <div class="res-contact" id="rContact">
+                        <span>📧 email@example.com</span>
+                        <span>📱 +91 9876543210</span>
+                    </div>
+                </div>
+
+                <div class="res-body">
+                    <div class="res-section">
+                        <div class="res-sec-title">Professional Summary</div>
+                        <div class="res-item-desc" id="rSummary">
+                            Motivated Diploma student with a strong foundation in technical principles. Eager to apply skills in real-world engineering challenges.
+                        </div>
+                    </div>
+
+                    <div class="res-section">
+                        <div class="res-sec-title">Education</div>
+                        <div class="res-item">
+                            <div class="res-item-title">Diploma in <span id="rEduBranch">Engineering</span></div>
+                            <div class="res-item-sub" id="rCollege">Government Polytechnic</div>
+                            <div class="res-item-desc">Current Semester: <span id="rSem">--</span></div>
+                        </div>
+                    </div>
+
+                    <div class="res-section">
+                        <div class="res-sec-title">Projects</div>
+                        <div id="rProjectsContainer">
+                            <div style="font-style:italic; color:#94a3b8; font-size:12px;">Upload a file to add projects...</div>
+                        </div>
+                    </div>
+
+                    <div class="res-section">
+                        <div class="res-sec-title">Technical Skills</div>
+                        <div class="res-skills" id="rSkillsContainer"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="download-bar">
+                <button class="btn-action btn-dl" onclick="downloadResume()"><span>⬇</span> Download PDF</button>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let skills = [];
+        let projects = [];
+
+        window.onload = function() {
+            const userJson = localStorage.getItem('gigUser');
+            if (userJson) {
+                const user = JSON.parse(userJson);
+                document.getElementById('rName').innerText = user.name;
+                document.getElementById('rBranch').innerText = `Diploma in ${user.branch}`;
+                document.getElementById('rEduBranch').innerText = user.branch;
+                document.getElementById('rContact').innerHTML = `<span>📧 ${user.email || 'email@example.com'}</span><span>📱 ${user.mobile}</span>`;
+                document.getElementById('rCollege').innerText = user.college === 'GIOE' ? 'Govt Inst. of Electronics' : user.college;
+                document.getElementById('rSem').innerText = user.sem;
+            }
+        };
+
+        function addSkill() {
+            const input = document.getElementById('skillInput');
+            const val = input.value.trim();
+            if(val && !skills.includes(val)) {
+                skills.push(val);
+                renderSkills();
+                input.value = "";
+            }
+        }
+
+        function renderSkills() {
+            document.getElementById('skillsListContainer').innerHTML = skills.map(s => `<span class="skill-tag" onclick="removeSkill('${s}')">${s} ×</span>`).join('');
+            document.getElementById('rSkillsContainer').innerHTML = skills.map(s => `<span class="res-skill-badge">${s}</span>`).join('');
+        }
+
+        function removeSkill(skill) {
+            skills = skills.filter(s => s !== skill);
+            renderSkills();
+        }
+
+        function handleFile(input) {
+            if(input.files && input.files[0]) {
+                const file = input.files[0];
+                const fileName = file.name.split('.')[0];
+                const overlay = document.getElementById('loadingOverlay');
+                overlay.style.display = 'flex';
+
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    const newProject = {
+                        title: fileName.replace(/[-_]/g, ' '),
+                        desc: "Detailed project analysis focusing on implementation, challenges overcome, and final outcomes. Demonstrated technical proficiency."
+                    };
+                    projects.push(newProject);
+                    renderProjects();
+                    input.value = '';
+                }, 1500);
+            }
+        }
+
+        function renderProjects() {
+            document.getElementById('rProjectsContainer').innerHTML = projects.map(p => `
+                <div class="res-item">
+                    <div class="res-item-title">${p.title}</div>
+                    <div class="res-item-desc">${p.desc}</div>
+                </div>
+            `).join('');
+        }
+
+        function updateResume() {
+            const summary = document.getElementById('summaryInput').value;
+            if(summary) document.getElementById('rSummary').innerText = summary;
+        }
+
+        function downloadResume() {
+            const element = document.getElementById('resumePreview');
+            html2canvas(element, { scale: 2 }).then(canvas => {
+                const link = document.createElement('a');
+                link.download = 'Your GIG Built Resume.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
+        }
+    </script>
+
+</body>
+</html>

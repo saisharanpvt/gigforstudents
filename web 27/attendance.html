@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GIG | Attendance Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #030014;
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --neon-blue: #00F0FF;
+            --neon-purple: #7000FF;
+            --neon-green: #00E676;
+            --neon-orange: #FF9100;
+            --neon-red: #FF3D00;
+            --glass-panel: rgba(255, 255, 255, 0.05);
+            --border-light: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.1) 0%, transparent 60%);
+            padding-bottom: 40px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px 20px; position: sticky; top: 0; z-index: 100;
+            background: rgba(3, 0, 20, 0.9); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .back-btn { text-decoration: none; font-size: 22px; color: white; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+
+        /* --- CALCULATOR CARD --- */
+        .calc-card {
+            background: var(--glass-panel); border: 1px solid var(--border-light);
+            border-radius: 24px; padding: 25px; text-align: center;
+            margin-bottom: 30px; position: relative; overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.3);
+        }
+        
+        .calc-icon { font-size: 40px; margin-bottom: 10px; display: inline-block; animation: float 3s infinite ease-in-out; }
+        .calc-title { font-size: 18px; font-weight: 700; font-family: 'Space Grotesk', sans-serif; margin-bottom: 5px; }
+        .calc-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+
+        .input-group {
+            display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px;
+        }
+        .days-input {
+            width: 100px; padding: 12px; background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-light); border-radius: 12px;
+            color: white; font-size: 20px; text-align: center; font-weight: 700; outline: none;
+        }
+        .days-input:focus { border-color: var(--neon-blue); }
+
+        .calc-btn {
+            background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple));
+            color: white; border: none; padding: 12px 25px; border-radius: 12px;
+            font-weight: 700; cursor: pointer; transition: 0.3s;
+        }
+        .calc-btn:hover { transform: scale(1.05); box-shadow: 0 0 15px rgba(0, 240, 255, 0.4); }
+
+        /* --- RESULT BOX --- */
+        .result-box {
+            margin-top: 20px; padding: 15px; border-radius: 12px;
+            background: rgba(0,0,0,0.3); display: none; text-align: left;
+            border-left: 4px solid transparent; animation: slideUp 0.3s ease;
+        }
+        .res-percent { font-size: 24px; font-weight: 800; font-family: 'Space Grotesk', sans-serif; margin-bottom: 5px; }
+        .res-msg { font-size: 13px; line-height: 1.5; color: #E2E8F0; }
+        
+        /* Status Colors */
+        .safe { border-color: var(--neon-green); }
+        .safe .res-percent { color: var(--neon-green); }
+        
+        .warn { border-color: var(--neon-orange); }
+        .warn .res-percent { color: var(--neon-orange); }
+        
+        .danger { border-color: var(--neon-red); }
+        .danger .res-percent { color: var(--neon-red); }
+
+        /* --- SBTET LINK --- */
+        .sbtet-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+            border: 1px solid var(--border-light); border-radius: 16px; padding: 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 30px; cursor: pointer; transition: 0.3s;
+        }
+        .sbtet-card:hover { border-color: var(--neon-blue); background: rgba(0, 240, 255, 0.05); }
+        .s-info h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+        .s-info p { font-size: 11px; color: var(--text-muted); }
+        .s-btn { color: var(--neon-blue); font-size: 20px; }
+
+        /* --- CALENDAR --- */
+        .calendar-section { text-align: center; }
+        .section-header { font-size: 14px; font-weight: 700; margin-bottom: 15px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        
+        .calendar-img-wrapper {
+            background: white; padding: 5px; border-radius: 12px;
+            overflow: hidden;
+        }
+        .calendar-img { width: 100%; display: block; border-radius: 8px; }
+
+        @keyframes float { 0% { transform: translateY(0px); } 50% { transform: translateY(-10px); } 100% { transform: translateY(0px); } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="homepage.html" class="back-btn">←</a>
+        <div class="page-title">Attendance</div>
+    </header>
+
+    <div class="container">
+
+        <div class="calc-card">
+            <div class="calc-icon">📊</div>
+            <div class="calc-title">Safe Zone Calculator</div>
+            <div class="calc-desc">Calculate your status based on 90 Working Days.</div>
+            
+            <div class="input-group">
+                <input type="number" id="presentDays" class="days-input" placeholder="00" min="0" max="90">
+                <span style="font-size:20px; color:#555;">/ 90</span>
+            </div>
+            
+            <button class="calc-btn" onclick="calculate()">CHECK STATUS</button>
+
+            <div id="resultBox" class="result-box">
+                </div>
+        </div>
+
+        <div class="sbtet-card" onclick="window.open('https://sbtet.telangana.gov.in/index.html#!/index/StudentAttendance', '_blank')">
+            <div class="s-info">
+                <h3>Official SBTET Biometric</h3>
+                <p>Check your government recorded attendance.</p>
+            </div>
+            <div class="s-btn">↗</div>
+        </div>
+
+        <div class="calendar-section">
+            <div class="section-header">Academic Calendar</div>
+            <div class="calendar-img-wrapper">
+                <img src="https://i.postimg.cc/GpvMk3Cx/IMG-20260205-WA0016-jpg.jpg" class="calendar-img" alt="Academic Calendar">
+            </div>
+            <p style="font-size: 10px; color: #64748B; margin-top: 10px;">* Tap image to zoom (if supported)</p>
+        </div>
+
+    </div>
+
+    <script>
+        function calculate() {
+            const totalDays = 90;
+            const val = document.getElementById('presentDays').value;
+            const resultBox = document.getElementById('resultBox');
+            
+            if(val === '' || val < 0 || val > 90) {
+                alert("Please enter valid days between 0 and 90");
+                return;
+            }
+
+            const present = parseInt(val);
+            const percent = ((present / totalDays) * 100).toFixed(2);
+            
+            // Requirements
+            const req75 = Math.ceil(0.75 * totalDays); // 68 days
+            const req65 = Math.ceil(0.65 * totalDays); // 59 days
+
+            let html = '';
+            resultBox.style.display = 'block';
+            resultBox.className = 'result-box'; // reset
+
+            if(present >= req75) {
+                // SAFE
+                resultBox.classList.add('safe');
+                html = `
+                    <div class="res-percent">${percent}%</div>
+                    <div class="res-msg">
+                        🎉 <strong>Excellent!</strong> You are in the Safe Zone.<br>
+                        You are eligible for the exams without any fines.
+                    </div>
+                `;
+            } else if (present >= req65) {
+                // CONDONATION
+                resultBox.classList.add('warn');
+                const needed = req75 - present;
+                html = `
+                    <div class="res-percent">${percent}%</div>
+                    <div class="res-msg">
+                        ⚠️ <strong>Warning Zone.</strong><br>
+                        You are eligible for Condonation (Fee ~₹1300).<br>
+                        You need <strong>${needed} more days</strong> to reach 75%.
+                    </div>
+                `;
+            } else {
+                // DETAINED
+                resultBox.classList.add('danger');
+                const needed65 = req65 - present;
+                html = `
+                    <div class="res-percent">${percent}%</div>
+                    <div class="res-msg">
+                        ❌ <strong>Danger Zone!</strong><br>
+                        You are currently below 65% (Detained).<br>
+                        You need <strong>${needed65} more days</strong> just to reach Condonation level.
+                    </div>
+                `;
+            }
+
+            resultBox.innerHTML = html;
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GIG | College Finds</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #030014;
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --neon-blue: #00F0FF;
+            --neon-purple: #7000FF;
+            --neon-green: #00E676;
+            --glass-panel: rgba(255, 255, 255, 0.05);
+            --border-light: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            height: 100vh; /* Full viewport height */
+            display: flex; 
+            flex-direction: column;
+            overflow: hidden; /* Prevent body scroll */
+        }
+
+        /* --- HEADER (Fixed Top) --- */
+        header {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px 20px; background: rgba(3, 0, 20, 0.95);
+            border-bottom: 1px solid var(--border-light);
+            flex-shrink: 0; /* Prevent shrinking */
+            z-index: 100;
+        }
+        .back-btn { text-decoration: none; font-size: 22px; color: white; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; }
+
+        /* --- SEARCH SECTION --- */
+        .search-container {
+            padding: 20px; background: var(--bg-deep);
+            flex-shrink: 0; /* Prevent shrinking */
+            z-index: 90;
+        }
+
+        .search-box {
+            position: relative; display: flex; align-items: center; width: 100%;
+        }
+        .search-icon {
+            position: absolute; left: 15px; color: var(--text-muted); font-size: 18px;
+        }
+        .search-input {
+            width: 100%; padding: 14px 45px; background: rgba(255,255,255,0.05);
+            border: 1px solid var(--border-light); border-radius: 30px;
+            color: white; font-size: 16px; outline: none; transition: 0.3s;
+        }
+        .search-input:focus { border-color: var(--neon-blue); background: rgba(255,255,255,0.1); }
+        
+        .btn-go {
+            position: absolute; right: 6px; top: 6px; bottom: 6px;
+            background: var(--neon-blue); color: black; border: none;
+            padding: 0 20px; border-radius: 20px; font-weight: 800; cursor: pointer;
+        }
+
+        /* Location Badge */
+        .location-indicator {
+            margin-top: 12px; display: flex; align-items: center; justify-content: center; gap: 6px;
+            font-size: 11px; color: var(--neon-green); text-align: center;
+        }
+        .loc-name { font-weight: 700; text-transform: uppercase; color: #fff; border-bottom: 1px dashed var(--text-muted); padding-bottom: 2px; }
+
+        /* --- CHIPS SCROLL --- */
+        .chip-container {
+            padding: 0 20px 15px 20px; display: flex; gap: 10px; overflow-x: auto;
+            background: var(--bg-deep); border-bottom: 1px solid var(--border-light);
+            flex-shrink: 0; /* Prevent shrinking */
+            scrollbar-width: none;
+        }
+        .chip-container::-webkit-scrollbar { display: none; }
+
+        .chip {
+            padding: 8px 16px; border-radius: 20px; border: 1px solid var(--border-light);
+            background: rgba(255,255,255,0.05); color: var(--text-muted);
+            font-size: 13px; font-weight: 600; white-space: nowrap; cursor: pointer; transition: 0.2s;
+            display: flex; align-items: center; gap: 6px;
+        }
+        .chip:hover, .chip.active {
+            border-color: var(--neon-blue); background: rgba(0, 240, 255, 0.1); color: white;
+        }
+
+        /* --- MAP AREA (Fills Remaining Space) --- */
+        .map-wrapper {
+            flex-grow: 1; /* Takes all remaining height */
+            position: relative; width: 100%; height: 100%;
+            background: #222; /* Placeholder bg */
+        }
+        iframe {
+            width: 100%; height: 100%; border: none; display: block;
+            filter: invert(90%) hue-rotate(180deg) contrast(90%); /* Dark Mode Filter */
+        }
+        
+        .view-btn {
+            position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #000; color: white; padding: 12px 24px;
+            border-radius: 30px; font-size: 12px; font-weight: 700; text-decoration: none;
+            border: 1px solid var(--border-light); display: flex; align-items: center; gap: 8px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.6); z-index: 10;
+        }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="homepage.html" class="back-btn">←</a>
+        <div class="page-title">College Finds</div>
+    </header>
+
+    <div class="search-container">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" class="search-input" placeholder="Search 'Xerox', 'Biryani'..." onkeypress="handleEnter(event)">
+            <button class="btn-go" onclick="triggerSearch()">GO</button>
+        </div>
+        
+        <div class="location-indicator">
+            <span>📍 Searching near:</span>
+            <span class="loc-name" id="collegeNameDisplay">Loading Location...</span>
+        </div>
+    </div>
+
+    <div class="chip-container">
+        <div class="chip" onclick="quickFilter('Hostels', this)">🏨 Hostels</div>
+        <div class="chip" onclick="quickFilter('Restaurants', this)">🍔 Food</div>
+        <div class="chip" onclick="quickFilter('Stationery', this)">📒 Stationery</div>
+        <div class="chip" onclick="quickFilter('Xerox Shop', this)">🖨️ Xerox</div>
+        <div class="chip" onclick="quickFilter('Hospitals', this)">🏥 Hospitals</div>
+        <div class="chip" onclick="quickFilter('Banks', this)">🏦 Banks</div>
+        <div class="chip" onclick="quickFilter('Parks', this)">🌳 Parks</div>
+        <div class="chip" onclick="quickFilter('Bus Stop', this)">🚌 Bus Stop</div>
+    </div>
+
+    <div class="map-wrapper">
+        <iframe id="mapFrame" src="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        
+        <a id="extMapLink" href="#" target="_blank" class="view-btn">
+            <span>🗺️</span> OPEN IN GOOGLE MAPS ↗
+        </a>
+    </div>
+
+    <script>
+        // Default location fallback
+        let currentLocation = "Government Institute of Electronics East Marredpally";
+
+        window.onload = function() {
+            // 1. Get User Data
+            const userJson = localStorage.getItem('gigUser');
+            
+            if (userJson) {
+                const user = JSON.parse(userJson);
+                const code = user.college;
+
+                // Map codes to full search-friendly names
+                const collegeMap = {
+                    'GIOE': 'Government Institute of Electronics East Marredpally',
+                    'GPW': 'Government Polytechnic for Women Secunderabad',
+                    'GPT': 'Government Polytechnic Masab Tank',
+                    'JNGP': 'JNGP Ramanthapur',
+                    'QQGP': 'Quli Qutub Shah Government Polytechnic'
+                };
+
+                if (code && collegeMap[code]) {
+                    currentLocation = collegeMap[code];
+                }
+            }
+
+            // 2. Set UI Text
+            document.getElementById('collegeNameDisplay').innerText = currentLocation.replace('Government', 'Govt');
+
+            // 3. Load Initial Map
+            updateMap("Nearby Places");
+        };
+
+        function handleEnter(e) {
+            if (e.key === 'Enter') triggerSearch();
+        }
+
+        function triggerSearch() {
+            const query = document.getElementById('searchInput').value.trim();
+            if (query) {
+                // Clear active chips
+                document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+                updateMap(query);
+            }
+        }
+
+        function quickFilter(category, btn) {
+            // Update Input
+            document.getElementById('searchInput').value = category;
+            
+            // Toggle Chips
+            document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+            btn.classList.add('active');
+
+            updateMap(category);
+        }
+
+        function updateMap(query) {
+            const frame = document.getElementById('mapFrame');
+            const extLink = document.getElementById('extMapLink');
+            
+            // Combine User Query + College Location
+            const fullQuery = `${query} near ${currentLocation}`;
+            const safeQuery = encodeURIComponent(fullQuery);
+            
+            // 1. Update Iframe (Standard Embed)
+            frame.src = `https://maps.google.com/maps?q=${safeQuery}&t=&z=15&ie=UTF8&iwloc=&output=embed`;
+
+            // 2. Update External Link
+            extLink.href = `https://www.google.com/maps/search/?api=1&query=${safeQuery}`;
+        }
+    </script>
+
+</body>
+</html>

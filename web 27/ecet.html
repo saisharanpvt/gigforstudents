@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GIG - ECET Prep</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #030014;
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --neon-orange: #FF9100;
+            --neon-blue: #00F0FF;
+            --neon-green: #00E676;
+            --neon-red: #FF3D00;
+            --glass-panel: rgba(255, 255, 255, 0.05);
+            --border-light: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 10%, rgba(255, 145, 0, 0.1) 0%, transparent 60%);
+            padding-bottom: 40px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px 20px; position: sticky; top: 0; z-index: 100;
+            background: rgba(3, 0, 20, 0.9); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .back-btn { text-decoration: none; font-size: 22px; color: white; transition: 0.3s; }
+        .back-btn:hover { color: var(--neon-orange); }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; }
+
+        /* --- TABS --- */
+        .tab-container {
+            display: flex; padding: 10px 20px; gap: 10px;
+            background: rgba(0,0,0,0.3); overflow-x: auto;
+            border-bottom: 1px solid var(--border-light);
+        }
+        .tab-btn {
+            padding: 10px 20px; border-radius: 20px; border: 1px solid var(--border-light);
+            background: transparent; color: var(--text-muted); font-weight: 600; font-size: 13px;
+            cursor: pointer; white-space: nowrap; transition: 0.3s;
+        }
+        .tab-btn.active {
+            background: var(--neon-orange); color: black; border-color: var(--neon-orange);
+            font-weight: 800;
+        }
+
+        /* --- SECTIONS --- */
+        .section-view { display: none; padding: 20px; max-width: 800px; margin: 0 auto; animation: fadeIn 0.4s ease; }
+        .section-view.active { display: block; }
+
+        /* ABOUT SECTION */
+        .info-card {
+            background: var(--glass-panel); border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 20px; margin-bottom: 20px;
+        }
+        .info-title { font-family: 'Space Grotesk', sans-serif; font-size: 18px; color: var(--neon-orange); margin-bottom: 10px; }
+        .info-text { font-size: 14px; color: #ccc; line-height: 1.6; margin-bottom: 15px; }
+        .info-list li { margin-bottom: 8px; color: #ddd; font-size: 13px; }
+        .info-list strong { color: white; }
+
+        /* MOCK TEST SECTION */
+        .test-header {
+            text-align: center; margin-bottom: 20px; padding: 20px;
+            background: linear-gradient(135deg, rgba(255,145,0,0.1), rgba(0,0,0,0));
+            border-radius: 16px; border: 1px solid var(--neon-orange);
+        }
+        .start-btn {
+            background: var(--neon-orange); color: black; border: none;
+            padding: 12px 30px; border-radius: 30px; font-weight: 800; font-size: 16px;
+            cursor: pointer; box-shadow: 0 0 20px rgba(255, 145, 0, 0.4);
+            transition: 0.2s; margin-top: 10px;
+        }
+        .start-btn:hover { transform: scale(1.05); }
+
+        /* QUIZ UI */
+        .quiz-container { display: none; }
+        .question-card {
+            background: #111; border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 20px; margin-bottom: 20px;
+        }
+        .q-topic-badge { display:inline-block; font-size:10px; background:rgba(255,255,255,0.1); padding:4px 8px; border-radius:4px; margin-bottom:10px; color:#aaa; }
+        .q-text { font-size: 16px; font-weight: 600; margin-bottom: 20px; line-height: 1.5; color: #fff; }
+        .options-grid { display: grid; gap: 10px; }
+        .option-btn {
+            background: #222; border: 1px solid #333; padding: 12px;
+            border-radius: 8px; color: #ddd; text-align: left; cursor: pointer; transition: 0.2s;
+        }
+        .option-btn:hover { border-color: var(--neon-orange); background: #2a2a2a; }
+        .option-btn.selected { background: var(--neon-orange); color: black; border-color: var(--neon-orange); font-weight: 700; }
+
+        .quiz-nav { display: flex; justify-content: space-between; margin-top: 20px; }
+        .nav-btn {
+            padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border-light);
+            background: transparent; color: white; cursor: pointer;
+        }
+
+        /* ANALYSIS ANIMATION */
+        .analyzing-overlay {
+            position: fixed; inset: 0; background: #030014; z-index: 200;
+            display: none; align-items: center; justify-content: center; flex-direction: column;
+        }
+        .loader {
+            width: 50px; height: 50px; border: 4px solid #333;
+            border-top-color: var(--neon-orange); border-radius: 50%;
+            animation: spin 1s linear infinite; margin-bottom: 20px;
+        }
+        .analyze-text { font-family: 'Space Grotesk', sans-serif; font-size: 18px; animation: pulse 1.5s infinite; }
+
+        /* RESULTS UI */
+        .results-container { display: none; }
+        .score-card {
+            text-align: center; padding: 30px; background: rgba(0, 230, 118, 0.1);
+            border: 1px solid var(--neon-green); border-radius: 16px; margin-bottom: 30px;
+        }
+        .score-big { font-size: 48px; font-weight: 800; color: var(--neon-green); display: block; }
+        
+        .recommendation-box {
+            background: rgba(255, 61, 0, 0.1); border-left: 4px solid var(--neon-red);
+            padding: 15px; border-radius: 8px; margin-bottom: 30px;
+        }
+
+        .answer-key-item {
+            background: #111; padding: 15px; border-radius: 12px; margin-bottom: 10px;
+            border: 1px solid #333;
+        }
+        .ans-header { display:flex; justify-content:space-between; margin-bottom:5px; font-size:11px; text-transform:uppercase; font-weight:700; }
+        .ans-correct-label { color: var(--neon-green); }
+        .ans-wrong-label { color: var(--neon-red); }
+        .ans-text { font-size:14px; margin-bottom:8px; color:white; }
+        .explanation { margin-top: 8px; font-size: 12px; color: #888; border-top: 1px solid #333; padding-top: 8px; line-height:1.4; }
+
+        /* VIDEO CARDS */
+        .video-card {
+            display: flex; gap: 15px; background: var(--glass-panel);
+            border: 1px solid var(--border-light); border-radius: 12px; padding: 10px;
+            cursor: pointer; margin-bottom: 15px;
+        }
+        .vid-thumb {
+            width: 100px; height: 60px; background: #000; border-radius: 8px;
+            display: flex; align-items: center; justify-content: center; font-size: 20px;
+        }
+        .vid-info { flex: 1; display: flex; flex-direction: column; justify-content: center; }
+        .vid-title { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="homepage.html" class="back-btn">←</a>
+        <div class="page-title">ECET Prep</div>
+    </header>
+
+    <div class="tab-container">
+        <button class="tab-btn active" onclick="switchTab('about', this)">ABOUT ECET</button>
+        <button class="tab-btn" onclick="switchTab('mock', this)">MOCK TEST</button>
+        <button class="tab-btn" onclick="switchTab('videos', this)">VIDEOS</button>
+    </div>
+
+    <div id="about" class="section-view active">
+        <div class="info-card">
+            <div class="info-title">What is ECET?</div>
+            <p class="info-text">
+                ECET stands for Engineering Common Entrance Test. It is an entrance exam conducted in some Indian states, including Andhra Pradesh and Telangana, for admission into various undergraduate engineering programs. The exam is typically held by the respective state’s government or a designated authority. ECET assesses candidates’ knowledge in mathematics, physics, chemistry, and relevant engineering subjects. It is an important step for students aspiring to pursue engineering degrees in these states.
+            </p>
+        </div>
+
+        <div class="info-card">
+            <div class="info-title">How to Prepare?</div>
+            <ul class="info-list" style="padding-left: 20px;">
+                <li><strong>Understand the Exam Pattern:</strong> Familiarize yourself with the number of questions, marking scheme, and duration.</li>
+                <li><strong>Syllabus:</strong> Obtain the official syllabus and prioritize topics based on strengths and weaknesses.</li>
+                <li><strong>Study Material:</strong> Use high-quality textbooks and reference guides.</li>
+                <li><strong>Previous Papers:</strong> Solve as many previous years' papers as possible to understand recurring topics.</li>
+                <li><strong>Mock Tests:</strong> Take full-length mock tests to simulate exam pressure and analyze performance.</li>
+                <li><strong>Focus on Weak Areas:</strong> Allocate more study time to difficult topics.</li>
+                <li><strong>Revision:</strong> Regular revision is crucial for memorizing formulas and concepts.</li>
+                <li><strong>Stay Healthy:</strong> Get adequate sleep and eat nutritious meals.</li>
+                <li><strong>Stay Positive:</strong> Maintain a positive attitude and manage stress effectively.</li>
+            </ul>
+            <a href="https://ecet.tgche.ac.in/" target="_blank" style="display:block; margin-top:15px; color:var(--neon-orange); font-size:13px; font-weight:700;">Visit Official Website ↗</a>
+        </div>
+    </div>
+
+    <div id="mock" class="section-view">
+        
+        <div id="testStartScreen" class="test-header">
+            <div style="font-size:40px; margin-bottom:10px;">📝</div>
+            <h2 style="margin-bottom:10px; color:white;">ECET Grand Mock Test</h2>
+            <p style="color:#aaa; font-size:13px; margin-bottom:20px;">
+                Your specialized test includes:<br>
+                <strong style="color:var(--neon-blue); font-size:16px;" id="userBranchDisplay">DETECTING BRANCH...</strong>
+            </p>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px; text-align:left;">
+                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;">📐 Maths (50M)</div>
+                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;">⚡ Physics (25M)</div>
+                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;">🧪 Chemistry (25M)</div>
+                <div style="background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;">🔧 Core Engg (100M)</div>
+            </div>
+            <button class="start-btn" onclick="startQuiz()">START TEST</button>
+        </div>
+
+        <div id="quizInterface" class="quiz-container">
+            <div style="display:flex; justify-content:space-between; margin-bottom:15px; color:#aaa; font-size:12px;">
+                <span id="qProgress">Question 1/10</span>
+                <span style="color:var(--neon-orange);" id="timer">⏱ 00:00</span>
+            </div>
+            
+            <div class="question-card">
+                <span class="q-topic-badge" id="qTopic">TOPIC</span>
+                <div class="q-text" id="qText">Loading...</div>
+                <div class="options-grid" id="qOptions"></div>
+            </div>
+
+            <div class="quiz-nav">
+                <button class="nav-btn" onclick="prevQ()" id="btnPrev" style="opacity:0.5; pointer-events:none;">Previous</button>
+                <button class="nav-btn" style="background:white; color:black; font-weight:700;" onclick="nextQ()" id="btnNext">Next</button>
+            </div>
+        </div>
+
+        <div id="resultsDashboard" class="results-container">
+            <div class="score-card">
+                <div style="font-size:14px; color:#aaa; margin-bottom:5px;">YOUR SCORE</div>
+                <span class="score-big" id="scoreDisplay">0/0</span>
+                <div style="font-size:12px; color:var(--neon-orange); margin-top:5px;" id="scoreComment">Keep Practicing!</div>
+            </div>
+
+            <div class="recommendation-box">
+                <strong style="color:var(--neon-red);">⚠️ FOCUS AREAS:</strong>
+                <p style="font-size:13px; color:#ddd; margin-top:5px;" id="recommendations">
+                    Analyze your wrong answers below to see where you need to improve.
+                </p>
+            </div>
+
+            <h3 style="color:white; margin-bottom:15px;">Detailed Analysis</h3>
+            <div id="answerKeyList"></div>
+            
+            <button class="start-btn" style="width:100%; margin-top:20px;" onclick="location.reload()">RETAKE TEST</button>
+        </div>
+
+    </div>
+
+    <div id="videos" class="section-view">
+        <div style="margin-bottom:20px; color:#aaa;">Recommended Learning Videos</div>
+        
+        <div class="video-card" onclick="window.open('https://youtu.be/NmoQyqoU0f0?si=xBphGIhFeAwGO-xL', '_blank')">
+            <div class="vid-thumb">▶️</div>
+            <div class="vid-info">
+                <div class="vid-title">Differentiation Formulas Trick</div>
+                <div style="font-size:11px; color:#888;">Maths</div>
+            </div>
+        </div>
+
+        <div class="video-card" onclick="window.open('https://youtu.be/8Dzwd4aEY8c?si=jEq4NfnunG7V64_L', '_blank')">
+            <div class="vid-thumb">▶️</div>
+            <div class="vid-info">
+                <div class="vid-title">Integration Short Tricks</div>
+                <div style="font-size:11px; color:#888;">Maths</div>
+            </div>
+        </div>
+
+        <div class="video-card" onclick="window.open('https://youtu.be/odul8TQ0IMY?si=e3wcm83Rh7X95XYX', '_blank')">
+            <div class="vid-thumb">▶️</div>
+            <div class="vid-info">
+                <div class="vid-title">Physics - Vectors One Shot</div>
+                <div style="font-size:11px; color:#888;">Physics</div>
+            </div>
+        </div>
+
+        <div class="video-card" onclick="window.open('https://youtu.be/_n_Jc8PifM4?si=FJWrt7P8ukq7su0y', '_blank')">
+            <div class="vid-thumb">▶️</div>
+            <div class="vid-info">
+                <div class="vid-title">Chemistry - Atomic Structure</div>
+                <div style="font-size:11px; color:#888;">Chemistry</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="analyzeOverlay" class="analyzing-overlay">
+        <div class="loader"></div>
+        <div class="analyze-text" style="color:var(--neon-orange);">Analyzing Performance...</div>
+        <div style="color:#666; font-size:12px; margin-top:10px;">Checking Accuracy & Speed</div>
+    </div>
+
+    <script>
+        // --- 1. USER DATA & BRANCH DETECTION ---
+        const userJson = localStorage.getItem('gigUser');
+        let userBranch = "ECE"; // Default
+        
+        // Define Specific Engineering Branches mapping
+        const ecBranches = ['ece', 'ev', 'ei', 'es', 'eve', 'eie', 'ese'];
+        const csBranches = ['cse', 'ccb', 'cs', 'ai', 'cps', 'aiml'];
+
+        if(userJson) {
+            const u = JSON.parse(userJson);
+            if(u.branch) userBranch = u.branch.toLowerCase();
+        }
+
+        // Determine Test Category
+        let testCategory = "ECE"; // Default
+        if (csBranches.includes(userBranch)) testCategory = "CSE";
+        
+        document.getElementById('userBranchDisplay').innerText = testCategory + " STREAM";
+
+        // --- 2. QUESTION BANK ---
+        // Common Questions (Maths, Physics, Chemistry)
+        const commonQuestions = [
+            // MATHS (Sample of 26 provided)
+            { q: "∫ (1 / √x) cos√x dx", options: ["sin√x + C", "–sin√x + C", "2 sin√x + C", "–2 sin√x + C"], ans: 2, exp: "Put √x = t, then (1/2√x)dx = dt. Integral becomes ∫ 2 cos t dt = 2 sin t.", topic: "Maths - Integration" },
+            { q: "∫ sin√x dx", options: ["2 sin√x + C", "–2 sin√x + C", "2√x cos√x + C", "–2√x cos√x + 2 sin√x + C"], ans: 3, exp: "Use Integration by parts after substitution.", topic: "Maths - Integration" },
+            { q: "∫ [1 / √(1 – x²)] √(sin⁻¹x) dx", options: ["√(sin⁻¹x) + C", "√(sin⁻¹x)/2 + C", "(1/2)√(sin⁻¹x) + C", "2√(sin⁻¹x) + C"], ans: 3, exp: "Standard substitution method.", topic: "Maths - Integration" },
+            { q: "∫ [sin√x / √x] dx", options: ["2 sin√x + C", "2 cos√x + C", "–2 cos√x + C", "–2 sin√x + C"], ans: 2, exp: "Substitution of √x leads to standard form.", topic: "Maths - Integration" },
+            
+            // PHYSICS (Sample of 20 provided)
+            { q: "Three vectors each of magnitude A are acting at 120°. Resultant is?", options: ["√3 A", "√6 A", "Zero", "√2 A"], ans: 2, exp: "Vectors form a closed equilateral triangle, so resultant is zero.", topic: "Physics - Vectors" },
+            { q: "A person moves 10 m southward, 5 m westward, then 10√2 m in the north-east direction. The resultant displacement is", options: ["5 m westward", "10 m north", "5 m eastward", "10 m south"], ans: 1, exp: "Vector addition of displacement components.", topic: "Physics - Vectors" },
+            { q: "Vector parallel to (6 i + 8 j) and having a magnitude of 5 is", options: ["4 i + 3 j", "12 i + 16 j", "16 i + 8 j", "3 i + 4 j"], ans: 3, exp: "Unit vector multiplied by magnitude 5.", topic: "Physics - Vectors" },
+            
+            // CHEMISTRY (Sample of 35 provided)
+            { q: "Isobars have the same number of", options: ["Protons", "Electrons", "Nucleons", "Neutrons"], ans: 2, exp: "Isobars have the same mass number (protons + neutrons), which are called nucleons.", topic: "Chemistry - Atomic Structure" },
+            { q: "Bohr’s model of atom is based on", options: ["Quantum theory", "Dalton’s atomic theory", "Theory of electrolytic dissociation", "Law of mass action"], ans: 0, exp: "Bohr used Planck’s quantum theory to explain electron energy levels.", topic: "Chemistry - Atomic Structure" },
+            { q: "Splitting of spectral lines in magnetic field is called", options: ["Zeeman effect", "Stark effect", "Bohr’s effect", "Sommerfeld effect"], ans: 0, exp: "Zeeman effect is the splitting of lines in a magnetic field.", topic: "Chemistry - Atomic Structure" }
+        ];
+
+        // Specific Questions (Generated based on Syllabus PDFs)
+        const specificQuestions = {
+            'ECE': [
+                { q: "Ideally, the CMRR of an Op-Amp should be?", options: ["Zero", "Infinity", "Unity", "100"], ans: 1, exp: "Common Mode Rejection Ratio should be infinite to reject noise (Linear ICs).", topic: "ECE - Linear ICs" },
+                { q: "Which modulation is used for Video signals in TV transmission?", options: ["FM", "AM", "VSB", "SSB"], ans: 2, exp: "Vestigial Sideband (VSB) is used to save bandwidth.", topic: "ECE - Communication" },
+                { q: "Which of these is a Universal Gate?", options: ["AND", "OR", "XOR", "NAND"], ans: 3, exp: "NAND and NOR can implement any boolean function.", topic: "ECE - Digital Electronics" },
+                { q: "In 8051 Microcontroller, how many 16-bit timers are there?", options: ["1", "2", "3", "4"], ans: 1, exp: "8051 has two 16-bit timers: Timer 0 and Timer 1.", topic: "ECE - Microcontrollers" },
+                { q: "The forbidden energy gap in Germanium is approximately?", options: ["1.1 eV", "0.72 eV", "0.3 eV", "1.5 eV"], ans: 1, exp: "Ge is 0.72 eV, Si is 1.1 eV.", topic: "ECE - Electronic Devices" }
+            ],
+            'CSE': [
+                { q: "Which data structure uses LIFO principle?", options: ["Queue", "Stack", "Linked List", "Tree"], ans: 1, exp: "Stack is Last-In-First-Out.", topic: "CSE - Data Structures" },
+                { q: "The size of 'int' in a standard 32-bit C compiler is?", options: ["2 bytes", "4 bytes", "8 bytes", "1 byte"], ans: 1, exp: "Usually 4 bytes (32 bits) on 32-bit systems.", topic: "CSE - C Programming" },
+                { q: "Which SQL command is used to retrieve data?", options: ["UPDATE", "DELETE", "SELECT", "INSERT"], ans: 2, exp: "SELECT is the DQL command for retrieval.", topic: "CSE - RDBMS" },
+                { q: "What is the core of the Linux Operating System?", options: ["Shell", "Kernel", "Terminal", "Command"], ans: 1, exp: "The Kernel interacts directly with hardware.", topic: "CSE - OS" },
+                { q: "Which concept allows a class to derive properties from another class?", options: ["Polymorphism", "Encapsulation", "Inheritance", "Abstraction"], ans: 2, exp: "Inheritance allows reusability of code.", topic: "CSE - OOPs" }
+            ]
+        };
+
+        // Initialize Quiz Data
+        let quizData = [...commonQuestions, ...(specificQuestions[testCategory] || [])];
+        // Shuffle or slice for variety if needed, currently using all defined above.
+        
+        let currentQIndex = 0;
+        let userAnswers = new Array(quizData.length).fill(null);
+        let timerInterval;
+        let timeElapsed = 0;
+
+        // --- FUNCTIONS ---
+        function switchTab(viewId, btn) {
+            document.querySelectorAll('.section-view').forEach(el => el.classList.remove('active'));
+            document.getElementById(viewId).classList.add('active');
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            btn.classList.add('active');
+        }
+
+        function startQuiz() {
+            document.getElementById('testStartScreen').style.display = 'none';
+            document.getElementById('quizInterface').style.display = 'block';
+            startTimer();
+            loadQuestion(0);
+        }
+
+        function startTimer() {
+            timerInterval = setInterval(() => {
+                timeElapsed++;
+                const mins = Math.floor(timeElapsed / 60).toString().padStart(2, '0');
+                const secs = (timeElapsed % 60).toString().padStart(2, '0');
+                document.getElementById('timer').innerText = `⏱ ${mins}:${secs}`;
+            }, 1000);
+        }
+
+        function loadQuestion(index) {
+            const q = quizData[index];
+            document.getElementById('qTopic').innerText = q.topic;
+            document.getElementById('qText').innerText = `${index + 1}. ${q.q}`;
+            document.getElementById('qProgress').innerText = `Question ${index + 1}/${quizData.length}`;
+            
+            const optsContainer = document.getElementById('qOptions');
+            optsContainer.innerHTML = '';
+            
+            q.options.forEach((opt, i) => {
+                const btn = document.createElement('div');
+                btn.className = 'option-btn';
+                if(userAnswers[index] === i) btn.classList.add('selected');
+                btn.innerText = opt;
+                btn.onclick = () => selectOption(index, i);
+                optsContainer.appendChild(btn);
+            });
+
+            // Nav Buttons
+            document.getElementById('btnPrev').style.opacity = index === 0 ? '0.5' : '1';
+            document.getElementById('btnPrev').style.pointerEvents = index === 0 ? 'none' : 'auto';
+            
+            const nextBtn = document.getElementById('btnNext');
+            nextBtn.innerText = index === quizData.length - 1 ? "SUBMIT" : "Next";
+            nextBtn.onclick = index === quizData.length - 1 ? submitQuiz : nextQ;
+        }
+
+        function selectOption(qIndex, optIndex) {
+            userAnswers[qIndex] = optIndex;
+            loadQuestion(qIndex); // Re-render to show selection
+        }
+
+        function nextQ() {
+            if(currentQIndex < quizData.length - 1) {
+                currentQIndex++;
+                loadQuestion(currentQIndex);
+            }
+        }
+
+        function prevQ() {
+            if(currentQIndex > 0) {
+                currentQIndex--;
+                loadQuestion(currentQIndex);
+            }
+        }
+
+        function submitQuiz() {
+            clearInterval(timerInterval);
+            document.getElementById('quizInterface').style.display = 'none';
+            document.getElementById('analyzeOverlay').style.display = 'flex';
+            
+            // Simulate Analysis Delay
+            setTimeout(() => {
+                document.getElementById('analyzeOverlay').style.display = 'none';
+                showResults();
+            }, 3000);
+        }
+
+        function showResults() {
+            document.getElementById('resultsDashboard').style.display = 'block';
+            
+            let score = 0;
+            let weakTopics = new Set();
+            let html = '';
+
+            quizData.forEach((q, i) => {
+                const isCorrect = userAnswers[i] === q.ans;
+                if(isCorrect) score++;
+                else weakTopics.add(q.topic);
+
+                const statusClass = isCorrect ? 'ans-correct-label' : 'ans-wrong-label';
+                const statusText = isCorrect ? 'CORRECT' : 'WRONG';
+                const userAnswerText = userAnswers[i] !== null ? q.options[userAnswers[i]] : 'Unanswered';
+
+                html += `
+                    <div class="answer-key-item">
+                        <div class="ans-header">
+                            <span>Q${i+1}: ${q.topic}</span>
+                            <span class="${statusClass}">${statusText}</span>
+                        </div>
+                        <div style="font-weight:600; margin-bottom:10px;">${q.q}</div>
+                        <div class="ans-text" style="color:${isCorrect ? 'var(--neon-green)' : 'var(--neon-red)'}">Your Answer: ${userAnswerText}</div>
+                        <div class="ans-text" style="color:var(--neon-green)">Correct Answer: ${q.options[q.ans]}</div>
+                        <div class="explanation">💡 <strong>Explanation:</strong> ${q.exp}</div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('scoreDisplay').innerText = `${score}/${quizData.length}`;
+            document.getElementById('answerKeyList').innerHTML = html;
+
+            // Recommendations
+            if(weakTopics.size > 0) {
+                const topicList = Array.from(weakTopics).map(t => `<li>${t}</li>`).join('');
+                document.getElementById('recommendations').innerHTML = `
+                    You missed questions in these areas. We recommend revising:
+                    <ul style="padding-left:20px; margin-top:5px; color:#fff;">${topicList}</ul>
+                `;
+            } else {
+                document.getElementById('recommendations').innerText = "Outstanding! You cleared all concepts. Keep revising mock tests to maintain speed.";
+                document.querySelector('.recommendation-box').style.borderColor = "var(--neon-green)";
+            }
+        }
+
+    </script>
+
+</body>
+</html>

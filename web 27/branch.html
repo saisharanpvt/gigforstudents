@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GIG - Know About Your Branch</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #030014;
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --neon-blue: #00F0FF;
+            --neon-purple: #7000FF;
+            --neon-green: #00E676;
+            --glass-panel: rgba(255, 255, 255, 0.05);
+            --border-light: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(112, 0, 255, 0.1) 0%, transparent 60%);
+            padding-bottom: 40px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px 20px; position: sticky; top: 0; z-index: 100;
+            background: rgba(3, 0, 20, 0.9); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .back-btn { text-decoration: none; font-size: 22px; color: white; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; }
+
+        /* --- BRANCH TABS --- */
+        .tab-scroll-container {
+            position: sticky; top: 60px; z-index: 90;
+            background: rgba(3, 0, 20, 0.95);
+            border-bottom: 1px solid var(--border-light);
+            padding: 10px 0;
+        }
+        
+        .tabs {
+            display: flex; gap: 10px; padding: 0 20px;
+            overflow-x: auto; scroll-behavior: smooth;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+
+        .tab-btn {
+            padding: 10px 20px; border-radius: 20px;
+            background: var(--glass-panel); border: 1px solid var(--border-light);
+            color: var(--text-muted); font-weight: 700; font-size: 13px;
+            cursor: pointer; white-space: nowrap; transition: 0.3s;
+        }
+        .tab-btn.active {
+            background: rgba(0, 240, 255, 0.1); border-color: var(--neon-blue);
+            color: var(--neon-blue); box-shadow: 0 0 15px rgba(0, 240, 255, 0.2);
+        }
+
+        /* --- CONTENT AREA --- */
+        .content-container {
+            max-width: 800px; margin: 0 auto; padding: 20px;
+        }
+
+        .branch-view { display: none; animation: fadeIn 0.4s ease; }
+        .branch-view.active { display: block; }
+
+        .branch-header {
+            text-align: center; margin-bottom: 30px;
+        }
+        .bh-icon { font-size: 40px; display: block; margin-bottom: 10px; }
+        .bh-title { font-family: 'Space Grotesk', sans-serif; font-size: 24px; color: white; margin-bottom: 5px; }
+        .bh-sub { font-size: 12px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+
+        /* --- PDF GRID --- */
+        .pdf-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+        }
+
+        .pdf-card {
+            background: var(--glass-panel); border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 20px; text-align: center;
+            transition: 0.3s; cursor: pointer; position: relative; overflow: hidden;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .pdf-card:hover { border-color: var(--neon-blue); background: rgba(0, 240, 255, 0.05); transform: translateY(-3px); }
+
+        .pdf-icon { font-size: 28px; margin-bottom: 10px; }
+        .pdf-label { font-size: 14px; font-weight: 700; color: white; margin-bottom: 5px; }
+        .pdf-meta { font-size: 10px; color: var(--neon-blue); }
+
+        .card-structure {
+            grid-column: 1 / -1; background: linear-gradient(135deg, rgba(112,0,255,0.1), rgba(0,0,0,0));
+            border-color: var(--neon-purple); flex-direction: row; gap: 15px; text-align: left;
+        }
+        .card-structure .pdf-icon { margin-bottom: 0; font-size: 32px; }
+
+        .info-box {
+            margin-top: 40px; padding: 20px; border-radius: 16px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.01));
+            border: 1px solid var(--border-light); text-align: center;
+        }
+        .ib-title { font-weight: 700; margin-bottom: 10px; color: var(--neon-green); }
+        .ib-desc { font-size: 13px; color: #CBD5E1; margin-bottom: 15px; }
+        .btn-main {
+            background: var(--neon-green); color: black; text-decoration: none;
+            padding: 10px 20px; border-radius: 30px; font-weight: 800; font-size: 12px;
+            display: inline-block;
+        }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="homepage.html" class="back-btn">←</a>
+        <div class="page-title">Know About Your Branch</div>
+    </header>
+
+    <div class="tab-scroll-container">
+        <div class="tabs" id="branchTabs">
+            <button class="tab-btn" id="btn-ECE" onclick="showBranch('ECE')">ECE</button>
+            <button class="tab-btn" id="btn-EVE" onclick="showBranch('EVE')">EVE</button>
+            <button class="tab-btn" id="btn-EIE" onclick="showBranch('EIE')">EIE</button>
+            <button class="tab-btn" id="btn-ESE" onclick="showBranch('ESE')">ESE</button>
+            <button class="tab-btn" id="btn-CSE" onclick="showBranch('CSE')">CSE</button>
+            <button class="tab-btn" id="btn-CCB" onclick="showBranch('CCB')">CCB</button>
+            <button class="tab-btn" id="btn-CPS" onclick="showBranch('CPS')">CPS</button>
+            <button class="tab-btn" id="btn-AI" onclick="showBranch('AI')">AI</button>
+            <button class="tab-btn" id="btn-BME" onclick="showBranch('BME')">BME</button>
+        </div>
+    </div>
+
+    <div class="content-container">
+
+        <div id="ECE" class="branch-view">
+            <div class="branch-header">
+                <span class="bh-icon">📡</span>
+                <h2 class="bh-title">Electronics & Comm.</h2>
+                <div class="bh-sub">Branch Code: ECE</div>
+            </div>
+            <div class="pdf-grid">
+                <div class="pdf-card card-structure" onclick="openPdf('https://drive.google.com/file/d/1bZwEmJ4TC-W4cNMJTPvePrNuMlVn1wAg/view?usp=drive_link')">
+                    <div class="pdf-icon">📜</div>
+                    <div><div class="pdf-label">Full Course Structure</div></div>
+                </div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1ZJiF0pPJdE_YhB5yqLpJCmQzbayjfFvU/view?usp=drive_link')"><div class="pdf-icon">1️⃣</div><div class="pdf-label">Semester 1</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1AN-OAcOJvsQRwGszmrB1Odfu54xbkh_y/view?usp=drive_link')"><div class="pdf-icon">2️⃣</div><div class="pdf-label">Semester 2</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1jRJH5qRBTXvV3Oz21ZUvjVBDOhn-rnsg/view?usp=drive_link')"><div class="pdf-icon">3️⃣</div><div class="pdf-label">Semester 3</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/13DSouinUAjpixZ7tciYCOxoPPt3nXZif/view?usp=drive_link')"><div class="pdf-icon">4️⃣</div><div class="pdf-label">Semester 4</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1_i9BROQxftyJCVvC06sVyt0Vj_HiLEBl/view?usp=drive_link')"><div class="pdf-icon">5️⃣</div><div class="pdf-label">Semester 5</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/17r_a-E_-Cqx5i5jEPc8EA8lDjcOys6an/view?usp=drive_link')"><div class="pdf-icon">6️⃣</div><div class="pdf-label">Semester 6</div></div>
+            </div>
+        </div>
+
+        <div id="EVE" class="branch-view">
+            <div class="branch-header">
+                <span class="bh-icon">🎥</span>
+                <h2 class="bh-title">Electronics & Video</h2>
+                <div class="bh-sub">Branch Code: EVE</div>
+            </div>
+            <div class="pdf-grid">
+                <div class="pdf-card card-structure" onclick="openPdf('https://drive.google.com/file/d/1S5jfXfw0p8vH3iKGEwabi7oK_dCCQ3jS/view?usp=drive_linkx`')">
+                    <div class="pdf-icon">📜</div>
+                    <div><div class="pdf-label">Course Structure</div></div>
+                </div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1VnYTHgbu4Q_00_xdGR5YPpBL5Rl2zA9k/view?usp=drive_link')"><div class="pdf-icon">1️⃣</div><div class="pdf-label">Semester 1</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1LTQAPQHLoorw7ixxMBUWHa2XCCMfYyEI/view?usp=drive_link')"><div class="pdf-icon">2️⃣</div><div class="pdf-label">Semester 2</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1wOkCsS70V6oxErx5IJsWlngIy8nT-viG/view?usp=drive_link')"><div class="pdf-icon">3️⃣</div><div class="pdf-label">Semester 3</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1kIplvivePPJJzMvXO2lQWkgVmHOjHk2o/view?usp=drive_link')"><div class="pdf-icon">4️⃣</div><div class="pdf-label">Semester 4</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1UFhu-Wu1y17dzdGmBPWTJ7wtso17MEQk/view?usp=drive_link')"><div class="pdf-icon">5️⃣</div><div class="pdf-label">Semester 5</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1eZ4_hZYT8d7xVkWlhY51RalR1PTqNPia/view?usp=drive_link')"><div class="pdf-icon">6️⃣</div><div class="pdf-label">Semester 6</div></div>
+            </div>
+        </div>
+
+        <div id="EIE" class="branch-view">
+            <div class="branch-header">
+                <span class="bh-icon">🎛️</span>
+                <h2 class="bh-title">Electronics & Instru.</h2>
+                <div class="bh-sub">Branch Code: EIE</div>
+            </div>
+            <div class="pdf-grid">
+                <div class="pdf-card card-structure" onclick="openPdf('https://drive.google.com/file/d/1oRnMr5ct4qoOBXr8mnydr38yx1OH3Jnq/view?usp=drive_link')">
+                    <div class="pdf-icon">📜</div>
+                    <div><div class="pdf-label">Course Structure</div></div>
+                </div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1M3FvjlfmpTBbbLuJLkaqNKl2kudJfif5/view?usp=drive_link')"><div class="pdf-icon">1️⃣</div><div class="pdf-label">Semester 1</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1eM7HmDHX0Qll_A_Ke510DeSNd5t-cDaq/view?usp=drive_link')"><div class="pdf-icon">2️⃣</div><div class="pdf-label">Semester 2</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1Oi1JPmbvwswAYOUU0BC_FBU53iMV2_5s/view?usp=drive_link')"><div class="pdf-icon">3️⃣</div><div class="pdf-label">Semester 3</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1M9mtG5vEgxw82CI6xyZqwR67odfmQrUY/view?usp=drive_link')"><div class="pdf-icon">4️⃣</div><div class="pdf-label">Semester 4</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1l-78y_WheXlLM7G9TDGwcfUHi951RKVe/view?usp=drive_link')"><div class="pdf-icon">5️⃣</div><div class="pdf-label">Semester 5</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/11urTAE3yVpokQJlD6Tmz_8AdD5VNFTFt/view?usp=drive_link')"><div class="pdf-icon">6️⃣</div><div class="pdf-label">Semester 6</div></div>
+            </div>
+        </div>
+
+        <div id="ESE" class="branch-view">
+            <div class="branch-header">
+                <span class="bh-icon">📲</span>
+                <h2 class="bh-title">Embedded Systems</h2>
+                <div class="bh-sub">Branch Code: ESE</div>
+            </div>
+            <div class="pdf-grid">
+                <div class="pdf-card card-structure" onclick="openPdf('https://drive.google.com/file/d/1DfbhdtXvlCc1dHi1mPxMDff9MhpPZFTX/view?usp=drive_link')">
+                    <div class="pdf-icon">📜</div>
+                    <div><div class="pdf-label">Course Structure</div></div>
+                </div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/17FZMGVHNbKYYNv-VW4TmkNkVnYPmIFcC/view?usp=drive_link')"><div class="pdf-icon">1️⃣</div><div class="pdf-label">Semester 1</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1FHbwLreuV4SmZ0TByBbrD6yy70BGIo9b/view?usp=drive_link')"><div class="pdf-icon">2️⃣</div><div class="pdf-label">Semester 2</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1V3yevU6XkI67q0hieols19NkhzPXtDcF/view?usp=drive_link')"><div class="pdf-icon">3️⃣</div><div class="pdf-label">Semester 3</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/14aF-XcYSevuMC4DZ8xi4mG5SC9Y1ioOY/view?usp=drive_link')"><div class="pdf-icon">4️⃣</div><div class="pdf-label">Semester 4</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/132EHT4EoxYCVHADUgYrxyxFnf7FdjthI/view?usp=drive_link')"><div class="pdf-icon">5️⃣</div><div class="pdf-label">Semester 5</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1ni1LTlI6gdakXUz-9U65v3TmGnWw1O2X/view?usp=drive_link')"><div class="pdf-icon">6️⃣</div><div class="pdf-label">Semester 6</div></div>
+            </div>
+        </div>
+
+        <div id="CSE" class="branch-view">
+            <div class="branch-header">
+                <span class="bh-icon">💻</span>
+                <h2 class="bh-title">Computer Science</h2>
+                <div class="bh-sub">Branch Code: CSE</div>
+            </div>
+            <div class="pdf-grid">
+                <div class="pdf-card card-structure" onclick="openPdf('https://drive.google.com/file/d/1U_8O-5ibbrF5GGAnDUPVCJXwuyIoKBlJ/view?usp=drive_link')">
+                    <div class="pdf-icon">📜</div>
+                    <div><div class="pdf-label">Course Structure</div></div>
+                </div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1PBs7kRaGf5dRF6XtGXj_19u9mGcDIVnL/view?usp=drive_link')"><div class="pdf-icon">1️⃣</div><div class="pdf-label">Semester 1</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1vSBqXvsyg6EmOvUsKV2A9bbxQr97MpTB/view?usp=drive_link')"><div class="pdf-icon">2️⃣</div><div class="pdf-label">Semester 2</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1UEvM4gRl-GDYe_pC0gZNhA4C8se7Bg2w/view?usp=drive_link')"><div class="pdf-icon">3️⃣</div><div class="pdf-label">Semester 3</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1EjUETt6yFy_u7P_RzGax6CT6eQgxEx2k/view?usp=drive_link')"><div class="pdf-icon">4️⃣</div><div class="pdf-label">Semester 4</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1Xk2zelHVtGri1n-lSJXrTaW0HvmHsILf/view?usp=drive_link')"><div class="pdf-icon">5️⃣</div><div class="pdf-label">Semester 5</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1pXfuwU7WUp4-NIqm45eN995zuc7en0Rh/view?usp=drive_link')"><div class="pdf-icon">6️⃣</div><div class="pdf-label">Semester 6</div></div>
+            </div>
+        </div>
+
+        <div id="CCB" class="branch-view">
+            <div class="branch-header">
+                <span class="bh-icon">☁️</span>
+                <h2 class="bh-title">Cloud & Big Data</h2>
+                <div class="bh-sub">Branch Code: CCB</div>
+            </div>
+            <div class="pdf-grid">
+                <div class="pdf-card card-structure" onclick="openPdf('https://drive.google.com/file/d/1TkteWT-qsg01j6cEC0_KwO4c-PUV8wFm/view?usp=drive_link')">
+                    <div class="pdf-icon">📜</div>
+                    <div><div class="pdf-label">Course Structure</div></div>
+                </div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1GOcK-rjLzZeY_B_0fla-yHdbG4pSGcgq/view?usp=drive_link')"><div class="pdf-icon">1️⃣</div><div class="pdf-label">Semester 1</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1gM-64ENEN-GEwricGWeS4iIcPACrx51p/view?usp=drive_link')"><div class="pdf-icon">2️⃣</div><div class="pdf-label">Semester 2</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1ScMgnMpJBhTISM8hS_aQg7dE4eAcQmaX/view?usp=drive_link')"><div class="pdf-icon">3️⃣</div><div class="pdf-label">Semester 3</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1itq-owZYSu4dR2Rrq6CBRniGPxzIMImK/view?usp=drive_link')"><div class="pdf-icon">4️⃣</div><div class="pdf-label">Semester 4</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1jeKffx_gMXfzc0FJLdu73hMCrHBhKD85/view?usp=drive_link')"><div class="pdf-icon">5️⃣</div><div class="pdf-label">Semester 5</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1z-He95FIDqawNeWt6XhdLrLFUIr5ldj_/view?usp=drive_link')"><div class="pdf-icon">6️⃣</div><div class="pdf-label">Semester 6</div></div>
+            </div>
+        </div>
+
+        <div id="CPS" class="branch-view">
+            <div class="branch-header">
+                <span class="bh-icon">🔐</span>
+                <h2 class="bh-title">Cyber Security</h2>
+                <div class="bh-sub">Branch Code: CPS</div>
+            </div>
+            <div class="pdf-grid">
+                <div class="pdf-card card-structure" onclick="openPdf('https://drive.google.com/file/d/1hdk6vg4WJi0PQPrAIVcFbbAOcIit0wY8/view?usp=drive_link')">
+                    <div class="pdf-icon">📜</div>
+                    <div><div class="pdf-label">Course Structure</div></div>
+                </div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1rOZci_H-JHoWNugkQydRTRmPoNYthKn8/view?usp=drive_link')"><div class="pdf-icon">1️⃣</div><div class="pdf-label">Semester 1</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1Py2kn_p6p6tWBFy_pa64vvGbUf_QiSbn/view?usp=drive_link')"><div class="pdf-icon">2️⃣</div><div class="pdf-label">Semester 2</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1_drEEYw-FTyztI4066nhRF3LEs9RaD5_/view?usp=drive_link')"><div class="pdf-icon">3️⃣</div><div class="pdf-label">Semester 3</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1AU5pSMJ_jJdJKlK0hQk_Od7nvmG1R6r-/view?usp=drive_link')"><div class="pdf-icon">4️⃣</div><div class="pdf-label">Semester 4</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1ursHfmBtaV7GbWo3OR1i28i6pp9atL-w/view?usp=drive_link')"><div class="pdf-icon">5️⃣</div><div class="pdf-label">Semester 5</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/14REz2PzaFq9IORXPXvtJ0Ijk9N_0LIgj/view?usp=drive_link')"><div class="pdf-icon">6️⃣</div><div class="pdf-label">Semester 6</div></div>
+            </div>
+        </div>
+
+        <div id="AI" class="branch-view">
+            <div class="branch-header">
+                <span class="bh-icon">🤖</span>
+                <h2 class="bh-title">Artificial Intelligence</h2>
+                <div class="bh-sub">Branch Code: AI/ML</div>
+            </div>
+            <div class="pdf-grid">
+                <div class="pdf-card card-structure" onclick="openPdf('https://drive.google.com/file/d/1FbSTI0HOoOIMB4v_5QayvMo3_LJQZjKT/view?usp=drive_link')">
+                    <div class="pdf-icon">📜</div>
+                    <div><div class="pdf-label">Course Structure</div></div>
+                </div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1nFGyHXa6Z39tgQeM7jdbN2aOLA5WilKY/view?usp=drive_link')"><div class="pdf-icon">1️⃣</div><div class="pdf-label">Semester 1</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1H_u4P_g_3ofDH_KZJ6wzsTfCc0Rtl5Nn/view?usp=drive_link')"><div class="pdf-icon">2️⃣</div><div class="pdf-label">Semester 2</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/10lt3V8xlKPA00MZ0R89KDki0USfUKpp2/view?usp=drive_link')"><div class="pdf-icon">3️⃣</div><div class="pdf-label">Semester 3</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1m3NfZ2ym2vpbiGDXoEuSTg7Ffs9T0ZQ3/view?usp=drive_link')"><div class="pdf-icon">4️⃣</div><div class="pdf-label">Semester 4</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1X50By6yNNRuOOSCwhmZz19NjGljkakX7/view?usp=drive_link')"><div class="pdf-icon">5️⃣</div><div class="pdf-label">Semester 5</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1edGPjj2W4nFPOrQyJhY0P2J8KVOJ9YRY/view?usp=drive_link')"><div class="pdf-icon">6️⃣</div><div class="pdf-label">Semester 6</div></div>
+            </div>
+        </div>
+
+        <div id="BME" class="branch-view">
+            <div class="branch-header">
+                <span class="bh-icon">🧬</span>
+                <h2 class="bh-title">Biomedical Engg.</h2>
+                <div class="bh-sub">Branch Code: BME</div>
+            </div>
+            <div class="pdf-grid">
+                <div class="pdf-card card-structure" onclick="openPdf('https://drive.google.com/file/d/1lrkmTMP2Mab9cb2372Ia6YeYDRVMjBT8/view?usp=drive_link')">
+                    <div class="pdf-icon">📜</div>
+                    <div><div class="pdf-label">Course Structure</div></div>
+                </div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1Eh5XTLVQGZfnLsey9xt8Hy-t1bwv9F8t/view?usp=drive_link')"><div class="pdf-icon">1️⃣</div><div class="pdf-label">Semester 1</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1ezYnBSeHfvon2wWOuajzCaDVuwe0kXOc/view?usp=drive_link')"><div class="pdf-icon">2️⃣</div><div class="pdf-label">Semester 2</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1DxfKTEYmZ6Zh_CiZXx6d2Jvb_HP15_Dk/view?usp=drive_link')"><div class="pdf-icon">3️⃣</div><div class="pdf-label">Semester 3</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1hzgfr5G8HbRCNxIGhis8tgJqwrO2SfQv/view?usp=drive_link')"><div class="pdf-icon">4️⃣</div><div class="pdf-label">Semester 4</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1HYlbfl0Nbb3EiEYvjE6iNmTsay-yq_QR/view?usp=drive_link')"><div class="pdf-icon">5️⃣</div><div class="pdf-label">Semester 5</div></div>
+                <div class="pdf-card" onclick="openPdf('https://drive.google.com/file/d/1bA3kMKNCorRYxcPIMFX12J_CeQ1Sb_c-/view?usp=drive_link')"><div class="pdf-icon">6️⃣</div><div class="pdf-label">Semester 6</div></div>
+            </div>
+        </div>
+
+        <div class="info-box">
+            <div class="ib-title">General Subject Guide</div>
+            <div class="ib-desc">Overview of common subjects for all branches.</div>
+            <a href="https://drive.google.com/file/d/1df18EHDRyMnDL18O37GZNYsXoxhvaw4_/view?usp=drive_link" target="_blank" class="btn-main">VIEW GUIDE</a>
+        </div>
+
+    </div>
+
+    <script>
+        // ON LOAD: Auto-Select User Branch
+        window.onload = function() {
+            const userJson = localStorage.getItem('gigUser');
+            let userBranch = 'ECE'; // Default
+
+            if (userJson) {
+                const user = JSON.parse(userJson);
+                if (user.branch) {
+                    userBranch = user.branch; // e.g. "CSE" or "AI"
+                }
+            }
+            
+            // Trigger the branch view
+            showBranch(userBranch);
+        };
+
+        function showBranch(branchId) {
+            // 1. Hide all views
+            document.querySelectorAll('.branch-view').forEach(view => view.classList.remove('active'));
+            
+            // 2. Show target view (Handle edge case if branchId doesn't exist)
+            const target = document.getElementById(branchId);
+            if(target) {
+                target.classList.add('active');
+            } else {
+                // Fallback to ECE if ID not found
+                document.getElementById('ECE').classList.add('active');
+                branchId = 'ECE';
+            }
+            
+            // 3. Update active button state
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            const activeBtn = document.getElementById('btn-' + branchId);
+            if(activeBtn) {
+                activeBtn.classList.add('active');
+                
+                // 4. Scroll the tab button into view (Mobile UX)
+                activeBtn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }
+        }
+
+        function openPdf(path) {
+            window.open(path, '_blank');
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Exam Saviour - GIG</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@300;500;700&family=Fira+Code:wght@400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #050505;
+            --text-main: #FFFFFF;
+            --text-muted: #A3A3A3;
+            --zen-amber: #FFB347;
+            --zen-teal: #00BFA5;
+            --zen-blue: #2979FF;
+            --zen-red: #FF5252;
+            --border-light: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(255, 179, 71, 0.08) 0%, transparent 60%);
+            padding-bottom: 120px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px 20px; position: sticky; top: 0; z-index: 100;
+            background: rgba(5, 5, 5, 0.95); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .back-btn { text-decoration: none; font-size: 22px; color: white; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: var(--zen-amber); }
+
+        .container { max-width: 900px; margin: 0 auto; padding: 20px; }
+
+        /* --- SBTET MARKS CARD --- */
+        .sbtet-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+            border: 1px solid var(--border-light); border-radius: 16px; padding: 20px;
+            display: flex; align-items: center; justify-content: space-between;
+            margin-bottom: 30px; cursor: pointer; transition: 0.3s;
+        }
+        .sbtet-card:hover { border-color: var(--zen-teal); background: rgba(0, 191, 165, 0.05); }
+        .s-info h3 { font-size: 16px; font-weight: 700; margin-bottom: 4px; color: white;}
+        .s-info p { font-size: 12px; color: var(--text-muted); }
+        .s-btn { color: var(--zen-teal); font-size: 20px; font-weight: bold; }
+
+        /* --- RESOURCES CARDS --- */
+        .resource-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 30px; }
+        .res-card {
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 20px; text-align: center; cursor: pointer; transition: 0.3s;
+        }
+        .res-card:hover { border-color: var(--zen-teal); background: rgba(0, 191, 165, 0.05); }
+        .res-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+        .res-name { font-weight: 700; font-size: 14px; margin-bottom: 5px; }
+        .res-sub { font-size: 10px; color: var(--text-muted); }
+
+        /* --- MODALS --- */
+        .modal-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.95); z-index: 2000;
+            display: none; flex-direction: column; padding: 0; backdrop-filter: blur(20px);
+        }
+        .modal-overlay.open { display: flex; animation: fadeIn 0.3s; }
+        
+        .modal-header { 
+            padding: 20px 25px; border-bottom: 1px solid var(--border-light);
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(20,20,20,0.8);
+        }
+        .modal-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: white; }
+        .close-btn { 
+            background: rgba(255,255,255,0.1); border: none; color: white; width: 35px; height: 35px; 
+            border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+        }
+
+        .modal-scroll-area { flex: 1; overflow-y: auto; padding: 20px; background: #141414; }
+
+        /* --- FILTERS & SEARCH --- */
+        .search-container { padding: 0 0 20px 0; position: sticky; top: 0; background: #141414; z-index: 10; }
+        
+        .filter-bar { display: flex; gap: 8px; margin-bottom: 15px; }
+        .filter-item { 
+            flex: 1; display: flex; align-items: center; gap: 5px; 
+            background: rgba(255,255,255,0.05); padding: 8px 10px; 
+            border-radius: 8px; border: 1px solid var(--border-light);
+        }
+        .filter-item select {
+            background: transparent; border: none; color: white; width: 100%;
+            outline: none; font-size: 12px; font-weight: 600; cursor: pointer;
+        }
+        /* Forces dark theme on dropdown options */
+        select option { background: #0F172A; color: white; }
+
+        .search-input {
+            width: 100%; padding: 12px 15px; background: rgba(255,255,255,0.05);
+            border: 1px solid #333; border-radius: 8px; color: white; font-size: 14px; outline: none;
+            transition: 0.3s;
+        }
+        .search-input:focus { border-color: var(--zen-teal); background: rgba(0, 191, 165, 0.05); }
+
+        .pdf-card {
+            background: rgba(255,255,255,0.03); border: 1px solid #333; border-radius: 12px;
+            padding: 15px; margin-bottom: 12px; display: flex; align-items: center; justify-content: space-between;
+            gap: 12px; transition: 0.2s;
+        }
+        .pdf-card:hover { border-color: var(--zen-teal); transform: translateX(5px); background: rgba(255,255,255,0.06); }
+        .pdf-title { font-weight: 700; color: #fff; font-size: 14px; margin-bottom: 4px; }
+        .pdf-meta { font-size: 11px; color: var(--zen-amber); font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 600; }
+        .btn-view {
+            background: var(--zen-teal); color: #000; text-decoration: none;
+            padding: 8px 16px; border-radius: 6px; font-weight: 800; font-size: 11px;
+            text-transform: uppercase; display: inline-block; transition: 0.2s;
+        }
+        .btn-view:hover { background: white; }
+
+        /* --- DOCK & TOOLS --- */
+        .dock-container {
+            position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(20, 20, 20, 0.9); backdrop-filter: blur(20px);
+            border: 1px solid var(--border-light); border-radius: 40px;
+            padding: 10px 20px; display: flex; gap: 15px; z-index: 500;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+        .dock-item {
+            width: 45px; height: 45px; border-radius: 50%; font-size: 20px;
+            display: flex; align-items: center; justify-content: center; cursor: pointer;
+            background: rgba(255,255,255,0.05); transition: 0.3s;
+        }
+        .dock-item:hover { transform: translateY(-10px) scale(1.1); background: rgba(255,255,255,0.1); }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* TODO STYLES */
+        .todo-inputs { display: flex; flex-direction: column; gap: 8px; }
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+        .task-card { background: rgba(255,255,255,0.05); padding: 12px; margin-top: 8px; border-radius: 8px; display: flex; align-items: flex-start; gap: 12px; border: 1px solid transparent; transition: 0.2s; }
+        .task-card:hover { border-color: rgba(255,255,255,0.1); background: rgba(255,255,255,0.08); }
+        .task-content { flex: 1; display: flex; flex-direction: column; gap: 4px; }
+        .task-date { font-size: 10px; color: var(--zen-amber); font-family: 'Fira Code', monospace; }
+        .delete-btn { background: none; border: none; color: #ff5252; cursor: pointer; font-size: 16px; opacity: 0.7; padding: 0 4px; }
+        .delete-btn:hover { opacity: 1; }
+        .check-circle { width: 18px; height: 18px; border: 2px solid #666; border-radius: 50%; cursor: pointer; }
+        .task-card.done .check-circle { background: var(--zen-teal); border-color: var(--zen-teal); }
+        .task-card.done .t-text { text-decoration: line-through; opacity: 0.5; }
+
+        /* BREATHE TIMER */
+        .breathe-container { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+        .circle-wrapper { position: relative; width: 220px; height: 220px; margin-bottom: 40px; }
+        .breathe-circle { width: 100%; height: 100%; border-radius: 50%; background: radial-gradient(circle, var(--zen-teal) 0%, transparent 70%); opacity: 0.5; transform: scale(0.5); box-shadow: 0 0 50px rgba(0, 191, 165, 0.3); }
+        .breathe-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 20px; font-weight: 700; color: white; pointer-events: none; }
+        .inhale { animation: inhale 4s ease-in-out forwards; }
+        .exhale { animation: exhale 4s ease-in-out forwards; }
+        @keyframes inhale { 0% { transform: scale(0.5); opacity: 0.5; } 100% { transform: scale(1.2); opacity: 0.8; } }
+        @keyframes exhale { 0% { transform: scale(1.2); opacity: 0.8; } 100% { transform: scale(0.5); opacity: 0.5; } }
+
+        .time-roller-wrapper { position: relative; height: 120px; width: 100%; max-width: 200px; margin: 20px auto; overflow: hidden; mask-image: linear-gradient(to bottom, transparent, black 40%, black 60%, transparent); -webkit-mask-image: linear-gradient(to bottom, transparent, black 40%, black 60%, transparent); }
+        .time-roller { height: 100%; overflow-y: scroll; scroll-snap-type: y mandatory; scrollbar-width: none; }
+        .time-roller::-webkit-scrollbar { display: none; }
+        .roller-padding { height: 40px; } 
+        .roller-item { height: 40px; display: flex; align-items: center; justify-content: center; scroll-snap-align: center; color: #555; font-size: 18px; font-weight: 600; cursor: pointer; }
+        .roller-highlight { position: absolute; top: 50%; left: 0; right: 0; height: 40px; transform: translateY(-50%); border-top: 1px solid var(--zen-teal); border-bottom: 1px solid var(--zen-teal); pointer-events: none; }
+        .controls-row { display: flex; gap: 15px; margin-top: 20px; }
+        .stop-btn { background: rgba(255, 82, 82, 0.1); border: 1px solid var(--zen-red); color: var(--zen-red); }
+        .stop-btn:hover { background: rgba(255, 82, 82, 0.2); }
+        .results-btn { background: linear-gradient(135deg, var(--zen-blue), #0055ff); color: white; padding: 8px 16px; border-radius: 20px; border: none; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; }
+
+        /* FLOATING PANEL */
+        .todo-panel { position: fixed; bottom: 100px; right: 20px; width: 320px; background: #0F172A; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 20px; display: none; z-index: 1000; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .todo-panel.open { display: block; animation: slideUp 0.3s ease; }
+        .t-input { background: #222; border: 1px solid #333; color: white; padding: 10px; border-radius: 8px; width: 100%; margin-bottom: 8px; }
+        .add-task-btn { background: var(--zen-teal); color: black; border: none; padding: 10px; border-radius: 8px; width: 100%; font-weight: 700; cursor: pointer; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="homepage.html" class="back-btn">←</a>
+        <div class="page-title">Exam Saviour</div>
+        <div style="margin-left:auto; font-size:12px; color:var(--zen-amber); font-weight: bold;" id="userPinDisplay"></div>
+    </header>
+
+    <div class="container">
+        
+        <div class="sbtet-card" onclick="window.open('https://www.sbtet.telangana.gov.in/index.html#!/index/StudentConsolidated', '_blank')">
+            <div class="s-info">
+                <h3>Official SBTET Results Portal</h3>
+                <p>Check your marks on the official SBTET website</p>
+            </div>
+            <div class="s-btn">↗</div>
+        </div>
+
+        <div class="resource-grid">
+            <div class="res-card" onclick="openResourceModal('repeated')">
+                <span class="res-icon">🔥</span>
+                <div class="res-name">Repeated Questions</div>
+                <div class="res-sub">Top 20 Gunshot Qs</div>
+            </div>
+            <div class="res-card" onclick="openResourceModal('textbooks')">
+                <span class="res-icon">📖</span>
+                <div class="res-name">Open Textbooks</div>
+                <div class="res-sub">Official PDFs</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="resourceModal" class="modal-overlay">
+        <div class="modal-header">
+            <div class="modal-title" id="resModalTitle">Resources</div>
+            <button class="close-btn" onclick="closeModal('resourceModal')">×</button>
+        </div>
+        <div class="modal-scroll-area">
+            
+            <div class="search-container">
+                
+                <div class="filter-bar">
+                    <div class="filter-item">
+                        <span>📚</span>
+                        <select id="filterCurriculum" onchange="applyFilters()">
+                            <option value="all">All Curr</option>
+                            <option value="C-21">C-21</option>
+                            <option value="C-24">C-24</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <span>🏛️</span>
+                        <select id="filterBranch" onchange="applyFilters()">
+                            <option value="all">All Branch</option>
+                            <option value="ECE">ECE</option><option value="CSE">CSE</option>
+                            <option value="EVE">EVE</option><option value="EIE">EIE</option>
+                            <option value="ESE">ESE</option><option value="CCB">CCB</option>
+                            <option value="CPS">CPS</option><option value="AI">AI</option>
+                            <option value="BME">BME</option><option value="EEE">EEE</option>
+                            <option value="CE">CE</option><option value="HS">HS</option>
+                        </select>
+                    </div>
+                    <div class="filter-item">
+                        <span>📅</span>
+                        <select id="filterSem" onchange="applyFilters()">
+                            <option value="all">All Sem</option>
+                            <option value="1st Sem">1st Sem</option><option value="2nd Sem">2nd Sem</option>
+                            <option value="3rd Sem">3rd Sem</option><option value="4th Sem">4th Sem</option>
+                            <option value="5th Sem">5th Sem</option><option value="6th Sem">6th Sem</option>
+                        </select>
+                    </div>
+                </div>
+
+                <input type="text" class="search-input" id="searchResource" placeholder="Search by subject name or code..." onkeyup="applyFilters()">
+            </div>
+            
+            <div id="resourcesList"></div>
+        </div>
+    </div>
+
+    <div class="dock-container">
+        <div class="dock-item" onclick="window.open('https://open.spotify.com/playlist/0vvXsWCC9xrXsKd4FyS8kM', '_blank')">🎵</div>
+        <div class="dock-item" onclick="toggleTodo()">✅</div>
+        <div class="dock-item" onclick="openBreatheModal()">🧘</div>
+    </div>
+
+    <div id="breatheModal" class="modal-overlay" style="align-items:center;">
+        <button class="close-btn" onclick="closeModal('breatheModal')" style="position:absolute; top:20px; right:20px;">×</button>
+        <div class="breathe-container">
+            <div class="circle-wrapper">
+                <div class="breathe-circle" id="breatheCircle"></div>
+                <div class="breathe-text" id="breatheText">Select Time</div>
+            </div>
+            <div class="time-roller-wrapper" id="rollerWrapper">
+                <div class="roller-highlight"></div>
+                <div class="time-roller" id="timeRoller">
+                    <div class="roller-padding"></div>
+                    <div class="roller-item" data-val="1">1 Min</div>
+                    <div class="roller-item" data-val="2">2 Mins</div>
+                    <div class="roller-item" data-val="3">3 Mins</div>
+                    <div class="roller-item" data-val="4">4 Mins</div>
+                    <div class="roller-item" data-val="5">5 Mins</div>
+                    <div class="roller-item" data-val="6">6 Mins</div>
+                    <div class="roller-item" data-val="7">7 Mins</div>
+                    <div class="roller-item" data-val="8">8 Mins</div>
+                    <div class="roller-item" data-val="9">9 Mins</div>
+                    <div class="roller-item" data-val="10">10 Mins</div>
+                    <div class="roller-padding"></div>
+                </div>
+            </div>
+            <div class="controls-row">
+                <button class="results-btn stop-btn" onclick="stopBreathingSession()" style="font-size:14px; padding:10px 20px;">STOP</button>
+                <button class="results-btn" onclick="startBreathingSession()" style="font-size:14px; padding:10px 20px;">START</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="todo-panel" id="todoPanel">
+        <div class="modal-header" style="padding:0; margin-bottom:15px; background:none; border:none;">
+            <span style="font-weight:700; color:var(--zen-teal)">Tasks & Goals</span>
+            <span onclick="toggleTodo()" style="cursor:pointer; color:#fff;">×</span>
+        </div>
+        <div class="todo-inputs">
+            <input type="text" class="t-input" id="taskText" placeholder="Task name..." style="margin-bottom:5px;">
+            <input type="datetime-local" class="t-input" id="taskDate" style="color:#aaa;">
+            <button class="add-task-btn" onclick="addTask()">+ Add Task</button>
+        </div>
+        <div id="todoList" style="margin-top:15px; max-height:300px; overflow-y:auto;"></div>
+    </div>
+
+    <script src="api.js"></script>
+
+    <script>
+        // Secure Back-button logic
+        window.addEventListener('pageshow', function (event) {
+            if (!getGIGSession()) window.location.replace('login.html');
+        });
+
+        let allCurrentResources = [];
+        let currentUser = null;
+
+        window.onload = function() {
+            currentUser = getGIGSession(); 
+            if(!currentUser) {
+                window.location.replace('login.html');
+                return;
+            }
+
+            document.getElementById('userPinDisplay').innerText = '@' + currentUser.pin;
+            loadTasks(); 
+        };
+
+        // --- NEW RESOURCE FETCH & FILTER LOGIC ---
+        async function openResourceModal(type) {
+            const modal = document.getElementById('resourceModal');
+            const title = document.getElementById('resModalTitle');
+            const container = document.getElementById('resourcesList');
+            
+            modal.classList.add('open');
+            container.innerHTML = '<div style="text-align:center; padding:30px; color:var(--zen-teal); font-weight:bold;">Fetching Live Syllabus...</div>';
+            
+            // Map the button clicked to the exact Sheet Name in Google Sheets
+            let sheetName = '';
+            if(type === 'repeated') {
+                sheetName = 'Repeated Questions';
+                title.innerText = "Gunshot Questions";
+            } else {
+                sheetName = "Open Text Book PDF'S";
+                title.innerText = "Official Textbooks";
+            }
+
+            // AUTO-FILL the dropdowns based on user's profile
+            document.getElementById('filterCurriculum').value = currentUser.curriculum || 'all';
+            document.getElementById('filterBranch').value = currentUser.branch || 'all';
+            document.getElementById('filterSem').value = currentUser.sem || 'all';
+            document.getElementById('searchResource').value = '';
+
+            // Fetch the data from Google Sheets via our api.js
+            allCurrentResources = await GIG_API.getResources(sheetName);
+            
+            if(!allCurrentResources || allCurrentResources.error) {
+                container.innerHTML = '<div style="text-align:center; padding:20px; color:#FF5252;">Failed to load data. Please check your connection.</div>';
+                return;
+            }
+
+            // Immediately apply the auto-filled filters
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const container = document.getElementById('resourcesList');
+            let query = document.getElementById('searchResource').value.toLowerCase().trim();
+            
+            let curr = document.getElementById('filterCurriculum').value;
+            let branch = document.getElementById('filterBranch').value;
+            let sem = document.getElementById('filterSem').value;
+
+            // 1. Try to get results using the active filters
+            let filtered = getFilteredResults(query, curr, branch, sem);
+
+            // 2. SMART SEARCH LOGIC:
+            // If user typed something in search, but nothing matched their specific branch/sem filters:
+            if (query && filtered.length === 0) {
+                // Ignore the filters and search the entire database
+                let globalSearch = getFilteredResults(query, 'all', 'all', 'all');
+                
+                if (globalSearch.length > 0) {
+                    // Auto-reset the visual dropdowns to 'all' so the user knows what happened
+                    document.getElementById('filterCurriculum').value = 'all';
+                    document.getElementById('filterBranch').value = 'all';
+                    document.getElementById('filterSem').value = 'all';
+                    filtered = globalSearch; // Use the global results instead
+                }
+            }
+
+            renderResults(filtered);
+        }
+
+        // Helper function to process the array from Google Sheets
+        function getFilteredResults(query, curr, branch, sem) {
+            return allCurrentResources.filter(row => {
+                if(!row || row.length < 5) return false;
+
+                // Structure based on Google Sheet Columns: 0=Curr, 1=Branch, 2=Sem, 3=Subject, 4=Link
+                let rowCurr = (row[0] || "").toString().toLowerCase();
+                let rowBranch = (row[1] || "").toString().toLowerCase();
+                let rowSem = (row[2] || "").toString().toLowerCase();
+                let rowSub = (row[3] || "").toString().toLowerCase();
+
+                let matchCurr = (curr === 'all') || (rowCurr === curr.toLowerCase());
+                let matchBranch = (branch === 'all') || (rowBranch === branch.toLowerCase());
+                let matchSem = (sem === 'all') || (rowSem === sem.toLowerCase());
+                
+                let matchFilters = matchCurr && matchBranch && matchSem;
+
+                // Match Search box (checks across all text in that row)
+                let matchQuery = true;
+                if(query) {
+                    let combinedStr = `${rowCurr} ${rowBranch} ${rowSem} ${rowSub}`.toLowerCase();
+                    matchQuery = combinedStr.includes(query);
+                }
+
+                return matchFilters && matchQuery;
+            });
+        }
+
+        // Draws the cards onto the screen
+        function renderResults(list) {
+            const container = document.getElementById('resourcesList');
+            if(list.length === 0) {
+                container.innerHTML = '<div style="text-align:center; color:#666; padding:30px; font-size: 14px;">No materials found for this selection.<br>Try changing your filters or searching directly!</div>';
+                return;
+            }
+
+            let html = '';
+            list.forEach(row => {
+                let curriculum = row[0];
+                let branch = row[1];
+                let sem = row[2];
+                let subject = row[3];
+                let link = row[4];
+
+                html += `
+                    <div class="pdf-card">
+                        <div style="flex:1">
+                            <div class="pdf-title">${subject}</div>
+                            <div class="pdf-meta">${curriculum} • ${branch} • ${sem}</div>
+                        </div>
+                        <a href="${link}" target="_blank" class="btn-view">VIEW</a>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('open');
+        }
+
+
+        // ==========================================
+        // TODO LOGIC
+        // ==========================================
+        function toggleTodo() { 
+            const panel = document.getElementById('todoPanel');
+            panel.classList.toggle('open'); 
+        }
+
+        function addTask() {
+            const textInput = document.getElementById('taskText');
+            const dateInput = document.getElementById('taskDate');
+            const text = textInput.value;
+            const date = dateInput.value;
+
+            if(!text) return;
+
+            const tasks = JSON.parse(localStorage.getItem('gigTasks')) || [];
+            const newTask = { id: Date.now(), text: text, date: date, done: false };
+            tasks.push(newTask);
+            localStorage.setItem('gigTasks', JSON.stringify(tasks));
+
+            textInput.value = '';
+            dateInput.value = '';
+            loadTasks();
+        }
+
+        function loadTasks() {
+            const tasks = JSON.parse(localStorage.getItem('gigTasks')) || [];
+            const list = document.getElementById('todoList');
+            list.innerHTML = '';
+
+            if (tasks.length === 0) {
+                list.innerHTML = '<div style="text-align:center; color:#555; font-size:12px; margin-top:20px;">No tasks yet. Add one!</div>';
+                return;
+            }
+
+            tasks.sort((a, b) => a.done - b.done);
+
+            tasks.forEach(t => {
+                let dateHtml = '';
+                if (t.date) {
+                    const dateObj = new Date(t.date);
+                    const dateStr = dateObj.toLocaleDateString() + ' ' + dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                    dateHtml = `<div class="task-date">📅 ${dateStr}</div>`;
+                }
+
+                list.innerHTML += `
+                    <div class="task-card ${t.done ? 'done' : ''}">
+                        <div class="check-circle" onclick="toggleTask(${t.id})"></div>
+                        <div class="task-content">
+                            <div class="t-text" style="color:white; font-size:13px; line-height:1.4;">${t.text}</div>
+                            ${dateHtml}
+                        </div>
+                        <button class="delete-btn" onclick="deleteTask(${t.id})" title="Delete Task">🗑</button>
+                    </div>
+                `;
+            });
+        }
+
+        function toggleTask(id) {
+            const tasks = JSON.parse(localStorage.getItem('gigTasks')) || [];
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.done = !task.done;
+                localStorage.setItem('gigTasks', JSON.stringify(tasks));
+                loadTasks(); 
+            }
+        }
+
+        function deleteTask(id) {
+            if(confirm("Delete this task?")) {
+                let tasks = JSON.parse(localStorage.getItem('gigTasks')) || [];
+                tasks = tasks.filter(t => t.id !== id);
+                localStorage.setItem('gigTasks', JSON.stringify(tasks));
+                loadTasks();
+            }
+        }
+
+        // ==========================================
+        // BREATHE LOGIC
+        // ==========================================
+        let breatheInterval;
+        let sessionActive = false;
+
+        function openBreatheModal() { 
+            document.getElementById('breatheModal').classList.add('open'); 
+            document.getElementById('timeRoller').scrollTop = 0;
+        }
+
+        function startBreathingSession() {
+            if(sessionActive) return; 
+            
+            const roller = document.getElementById('timeRoller');
+            const index = Math.round(roller.scrollTop / 40);
+            const minutes = Math.min(Math.max(index + 1, 1), 10);
+            let sessionTime = minutes * 60; 
+            
+            const circle = document.getElementById('breatheCircle');
+            const text = document.getElementById('breatheText');
+            const wrapper = document.getElementById('rollerWrapper');
+            
+            sessionActive = true;
+            wrapper.style.opacity = "0.3"; 
+            wrapper.style.pointerEvents = "none"; 
+
+            let isInhale = true;
+            circle.className = 'breathe-circle inhale';
+            text.innerText = "Inhale...";
+
+            breatheInterval = setInterval(() => {
+                sessionTime -= 4; 
+                if (sessionTime <= 0) {
+                    stopBreathingSession();
+                    text.innerText = "Completed!";
+                    return;
+                }
+                isInhale = !isInhale;
+                circle.className = isInhale ? 'breathe-circle inhale' : 'breathe-circle exhale';
+                text.innerText = isInhale ? "Inhale..." : "Exhale...";
+            }, 4000);
+        }
+
+        function stopBreathingSession() {
+            clearInterval(breatheInterval);
+            sessionActive = false;
+            
+            const circle = document.getElementById('breatheCircle');
+            const text = document.getElementById('breatheText');
+            const wrapper = document.getElementById('rollerWrapper');
+
+            circle.className = 'breathe-circle'; 
+            text.innerText = "Select Time";
+            wrapper.style.opacity = "1";
+            wrapper.style.pointerEvents = "auto";
+        }
+
+        const originalCloseModal = closeModal;
+        closeModal = function(id) {
+            document.getElementById(id).classList.remove('open');
+            if(id === 'breatheModal') stopBreathingSession();
+        }
+    </script>
+</body>
+</html>

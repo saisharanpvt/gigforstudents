@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GIG - Community</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #030014;
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --neon-green: #25D366; /* WhatsApp Green */
+            --neon-blue: #00F0FF;
+            --glass-panel: rgba(37, 211, 102, 0.05);
+            --border-light: rgba(37, 211, 102, 0.2);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(37, 211, 102, 0.1) 0%, transparent 60%);
+            padding-bottom: 40px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px 20px; position: sticky; top: 0; z-index: 100;
+            background: rgba(3, 0, 20, 0.9); backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .back-btn { text-decoration: none; font-size: 22px; color: white; transition: 0.3s; }
+        .back-btn:hover { color: var(--neon-green); }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; }
+
+        /* --- HERO --- */
+        .hero {
+            padding: 40px 20px; text-align: center;
+        }
+        .hero-icon { font-size: 50px; margin-bottom: 15px; }
+        .hero h2 { font-family: 'Space Grotesk', sans-serif; font-size: 26px; margin-bottom: 8px; color: var(--neon-green); }
+        .hero p { color: var(--text-muted); font-size: 13px; max-width: 500px; margin: 0 auto; line-height: 1.5; }
+
+        /* --- GROUP LIST --- */
+        .group-container {
+            padding: 20px; display: flex; flex-direction: column; gap: 20px;
+            max-width: 600px; margin: 0 auto;
+        }
+
+        .group-card {
+            background: var(--glass-panel); border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 25px; transition: 0.3s;
+            position: relative; overflow: hidden; text-align: center;
+        }
+        .group-card:hover { transform: translateY(-5px); border-color: var(--neon-green); background: rgba(37, 211, 102, 0.08); }
+
+        /* Glow Effect */
+        .group-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--neon-green);
+        }
+
+        .group-icon {
+            width: 60px; height: 60px; margin: 0 auto 15px;
+            background: rgba(37, 211, 102, 0.1); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 30px; color: var(--neon-green);
+        }
+
+        .group-name { font-size: 18px; font-weight: 700; color: white; margin-bottom: 8px; }
+        .group-desc { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; line-height: 1.4; }
+
+        .btn-join {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            width: 100%; padding: 12px; border-radius: 30px; border: none;
+            background: var(--neon-green); color: black; font-weight: 800;
+            font-family: 'Space Grotesk', sans-serif; cursor: pointer;
+            text-decoration: none; transition: 0.2s; font-size: 14px;
+        }
+        .btn-join:hover { transform: scale(1.02); box-shadow: 0 0 20px rgba(37, 211, 102, 0.4); }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="homepage.html" class="back-btn">←</a>
+        <div class="page-title">Community</div>
+    </header>
+
+    <div class="hero">
+        <div class="hero-icon">👥</div>
+        <h2>Connect & Grow.</h2>
+        <p>Join our official WhatsApp communities to stay updated with college news, exam alerts, and resources.</p>
+    </div>
+
+    <div class="group-container">
+
+        <div class="group-card">
+            <div class="group-icon">🏫</div>
+            <div class="group-name">GIOE College Community</div>
+            <div class="group-desc">
+                Exclusive group for GIOE students. Official circulars, event updates, and campus news directly from seniors.
+            </div>
+            <a href="https://chat.whatsapp.com/LmdHGQYWXnrA5niqwPKgJF?mode=gi_t" target="_blank" class="btn-join">
+                <span>💬</span> JOIN WHATSAPP GROUP
+            </a>
+        </div>
+
+        <div class="group-card">
+            <div class="group-icon" style="color:var(--neon-blue); background:rgba(0,240,255,0.1);">🌐</div>
+            <div class="group-name">Telangana Polytechnic Hub</div>
+            <div class="group-desc">
+                State-wide community for all Diploma students. Discuss SBTET updates, exams, and share study materials.
+            </div>
+            <a href="https://chat.whatsapp.com/IhvberjcO5C4s8eUmtqONj?mode=gi_t" target="_blank" class="btn-join" style="background:var(--neon-blue);">
+                <span>💬</span> JOIN WHATSAPP GROUP
+            </a>
+        </div>
+
+    </div>
+
+</body>
+</html>

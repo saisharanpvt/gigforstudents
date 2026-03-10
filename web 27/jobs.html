@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GIG | Job Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #030014;
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --neon-cyan: #00F0FF;
+            --neon-purple: #BD00FF;
+            --neon-pink: #FF0055;
+            --glass-panel: rgba(255, 255, 255, 0.05);
+            --border-light: rgba(255, 255, 255, 0.1);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            min-height: 100vh;
+            background-image: radial-gradient(circle at 50% 0%, rgba(189, 0, 255, 0.08) 0%, transparent 60%);
+            padding-bottom: 40px;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex; align-items: center; gap: 15px;
+            padding: 15px 20px; position: sticky; top: 0; z-index: 100;
+            background: rgba(3, 0, 20, 0.9); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-light);
+        }
+        .back-btn { text-decoration: none; font-size: 22px; color: white; }
+        .page-title { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; }
+
+        /* --- HERO --- */
+        .hero {
+            padding: 40px 20px; text-align: center;
+            border-bottom: 1px solid var(--border-light);
+            background: linear-gradient(180deg, rgba(0,0,0,0), rgba(189, 0, 255, 0.05));
+        }
+        .hero h2 { 
+            font-family: 'Space Grotesk', sans-serif; font-size: 28px; margin-bottom: 8px; 
+            background: linear-gradient(to right, #fff, var(--neon-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        .hero p { color: var(--text-muted); font-size: 13px; max-width: 500px; margin: 0 auto; line-height: 1.5; }
+
+        /* --- SEARCH & FILTER --- */
+        .filter-bar {
+            padding: 20px; max-width: 800px; margin: 0 auto; display: flex; gap: 10px;
+        }
+        .search-box { flex: 1; position: relative; }
+        .search-input {
+            width: 100%; padding: 14px 45px; background: var(--glass-panel);
+            border: 1px solid var(--border-light); border-radius: 12px;
+            color: white; font-size: 14px; outline: none; transition: 0.3s;
+        }
+        .search-input:focus { border-color: var(--neon-purple); box-shadow: 0 0 15px rgba(189, 0, 255, 0.1); }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted); }
+
+        /* --- JOB CARDS --- */
+        .job-grid {
+            padding: 0 20px; display: grid; gap: 20px;
+            max-width: 800px; margin: 0 auto;
+        }
+
+        .job-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+            border: 1px solid var(--border-light);
+            border-radius: 16px; padding: 20px; transition: 0.3s;
+            position: relative; overflow: hidden;
+        }
+        .job-card:hover { transform: translateY(-3px); border-color: var(--neon-cyan); background: rgba(0, 240, 255, 0.02); }
+
+        /* Urgent Badge */
+        .badge-urgent {
+            position: absolute; top: 0; right: 0; background: var(--neon-pink);
+            color: white; font-size: 9px; padding: 4px 10px; border-radius: 0 16px 0 10px;
+            font-weight: 700; letter-spacing: 0.5px;
+        }
+
+        .card-top { display: flex; align-items: flex-start; gap: 15px; margin-bottom: 15px; }
+        .company-logo {
+            width: 55px; height: 55px; border-radius: 12px;
+            background: #fff; display: flex; align-items: center; justify-content: center;
+            font-size: 28px; font-weight: 800; color: black; flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        .job-header { flex: 1; }
+        .job-role { font-size: 17px; font-weight: 700; color: white; margin-bottom: 4px; }
+        .job-company { font-size: 13px; color: var(--neon-cyan); font-weight: 600; display: flex; align-items: center; gap: 6px; }
+        .verified-tick { width: 14px; height: 14px; background: var(--neon-cyan); border-radius: 50%; color: black; font-size: 9px; display: flex; align-items: center; justify-content: center; }
+
+        .meta-row {
+            display: flex; gap: 15px; margin-bottom: 15px; padding-bottom: 15px;
+            border-bottom: 1px solid rgba(255,255,255,0.05); flex-wrap: wrap;
+        }
+        .meta-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #CBD5E1; }
+        .meta-icon { opacity: 0.7; font-size: 14px; }
+
+        .job-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+        .tag {
+            font-size: 10px; padding: 5px 12px; border-radius: 20px; font-weight: 600;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); color: var(--text-muted);
+        }
+        
+        .action-row { display: flex; justify-content: space-between; align-items: center; }
+        .posted-time { font-size: 11px; color: #64748B; font-style: italic; }
+        
+        .btn-apply {
+            background: transparent; border: 1px solid var(--neon-cyan);
+            color: var(--neon-cyan); padding: 10px 24px; border-radius: 30px;
+            font-weight: 700; font-size: 12px; cursor: pointer; text-decoration: none;
+            transition: 0.3s; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-apply:hover { background: var(--neon-cyan); color: black; box-shadow: 0 0 20px rgba(0, 240, 255, 0.3); }
+
+        /* --- EMPTY STATE --- */
+        .no-results { display: none; text-align: center; color: var(--text-muted); padding: 40px; }
+
+    </style>
+</head>
+<body>
+
+    <header>
+        <a href="homepage.html" class="back-btn">←</a>
+        <div class="page-title">Career Portal</div>
+    </header>
+
+    <div class="hero">
+        <h2>Secure Your Future.</h2>
+        <p>Explore full-time opportunities tailored for Diploma Graduates. Freshers welcome.</p>
+    </div>
+
+    <div class="filter-bar">
+        <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchJob" class="search-input" placeholder="Search role (e.g. Junior Engineer)..." onkeyup="filterJobs()">
+        </div>
+    </div>
+
+    <div class="job-grid" id="jobContainer">
+
+        <div class="job-card">
+            <div class="badge-urgent">INTERNSHIPS</div>
+            <div class="card-top">
+                <div class="company-logo" style="color:#008BDC; font-size:20px;">IS</div>
+                <div class="job-header">
+                    <div class="job-role">Internshala Student Partner</div>
+                    <div class="job-company">
+                        Internshala Platform <div class="verified-tick">✓</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="meta-row">
+                <div class="meta-item"><span class="meta-icon">💰</span> Stipend Based</div>
+                <div class="meta-item"><span class="meta-icon">📍</span> Pan India (WFH)</div>
+                <div class="meta-item"><span class="meta-icon">🎓</span> Any Diploma</div>
+            </div>
+
+            <div class="job-tags">
+                <span class="tag">Internships</span>
+                <span class="tag">Part-Time</span>
+                <span class="tag">Remote</span>
+            </div>
+
+            <div class="action-row">
+                <span class="posted-time">Updated Daily</span>
+                <a href="https://internshala.com/" target="_blank" class="btn-apply">BROWSE JOBS →</a>
+            </div>
+        </div>
+
+        <div class="job-card">
+            <div class="card-top">
+                <div class="company-logo" style="color:#253788">N</div>
+                <div class="job-header">
+                    <div class="job-role">Diploma Electrical Jobs</div>
+                    <div class="job-company">
+                        Naukri.com <div class="verified-tick">✓</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="meta-row">
+                <div class="meta-item"><span class="meta-icon">💰</span> Market Standard</div>
+                <div class="meta-item"><span class="meta-icon">📍</span> Hyd / Secunderabad</div>
+                <div class="meta-item"><span class="meta-icon">🎓</span> Electrical (EEE)</div>
+            </div>
+
+            <div class="job-tags">
+                <span class="tag">Full Time</span>
+                <span class="tag">Site Engineer</span>
+                <span class="tag">Maintenance</span>
+            </div>
+
+            <div class="action-row">
+                <span class="posted-time">Live Vacancies</span>
+                <a href="https://www.naukri.com/diploma-electrical-jobs-in-hyderabad-secunderabad" target="_blank" class="btn-apply">VIEW OPENINGS →</a>
+            </div>
+        </div>
+
+        <div class="job-card">
+            <div class="card-top">
+                <div class="company-logo" style="color:#003A9B">in</div>
+                <div class="job-header">
+                    <div class="job-role">General Job Search</div>
+                    <div class="job-company">
+                        Indeed India <div class="verified-tick">✓</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="meta-row">
+                <div class="meta-item"><span class="meta-icon">💰</span> Various Roles</div>
+                <div class="meta-item"><span class="meta-icon">📍</span> Telangana Region</div>
+                <div class="meta-item"><span class="meta-icon">🎓</span> All Branches</div>
+            </div>
+
+            <div class="job-tags">
+                <span class="tag">Freshers</span>
+                <span class="tag">Technician</span>
+                <span class="tag">Support</span>
+            </div>
+
+            <div class="action-row">
+                <span class="posted-time">Multiple Listings</span>
+                <a href="https://in.indeed.com/jobs?q=&l=hyderabad%2C+telangana&radius=25&from=searchOnDesktopSerp&vjk=ff6e4f8ec2a32f6b" target="_blank" class="btn-apply">SEARCH NOW →</a>
+            </div>
+        </div>
+
+    </div>
+
+    <div id="noResults" class="no-results">
+        No jobs found matching your search.
+    </div>
+
+    <script>
+        function filterJobs() {
+            const input = document.getElementById('searchJob').value.toLowerCase();
+            const cards = document.getElementsByClassName('job-card');
+            let hasVisible = false;
+
+            for (let i = 0; i < cards.length; i++) {
+                const role = cards[i].querySelector('.job-role').innerText.toLowerCase();
+                const company = cards[i].querySelector('.job-company').innerText.toLowerCase();
+                const tags = cards[i].querySelector('.job-tags').innerText.toLowerCase();
+
+                if (role.includes(input) || company.includes(input) || tags.includes(input)) {
+                    cards[i].style.display = "block";
+                    hasVisible = true;
+                } else {
+                    cards[i].style.display = "none";
+                }
+            }
+
+            const noRes = document.getElementById('noResults');
+            noRes.style.display = hasVisible ? "none" : "block";
+        }
+    </script>
+
+</body>
+</html>

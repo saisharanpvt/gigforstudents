@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>GIG - Student Dashboard</title>
+    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-deep: #030014;
+            --text-main: #FFFFFF;
+            --text-muted: #94A3B8;
+            --neon-blue: #00F0FF; 
+            --neon-purple: #7000FF;
+            --neon-gold: #FFD700;
+            --glass-panel: rgba(255, 255, 255, 0.05);
+            --border-light: rgba(255, 255, 255, 0.1);
+            --danger: #FF3D00;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Plus Jakarta Sans', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            overflow-x: hidden;
+            background-image: radial-gradient(circle at 50% 0%, rgba(0, 240, 255, 0.08) 0%, transparent 60%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            position: relative;
+        }
+
+        /* --- HEADER --- */
+        header {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 15px 20px; position: sticky; top: 0; z-index: 100;
+            background: rgba(3, 0, 20, 0.9); backdrop-filter: blur(15px);
+            border-bottom: 1px solid var(--border-light);
+        }
+
+        .logo { 
+            font-family: 'Space Grotesk', sans-serif; 
+            font-size: 24px; 
+            font-weight: 800; 
+            text-decoration: none; 
+            letter-spacing: -0.5px;
+        }
+        .logo .gig { color: #FFFFFF; } 
+        .logo .highlight { color: var(--neon-blue); } 
+
+        .profile-trigger {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+            padding: 2px; cursor: pointer; transition: 0.3s;
+        }
+        .profile-trigger img {
+            width: 100%; height: 100%; border-radius: 50%;
+            background: #000; object-fit: cover;
+        }
+        .profile-trigger:active { transform: scale(0.9); }
+
+        /* --- HERO --- */
+        .hero { padding: 30px 20px 20px; }
+        .hero-quote {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 22px; line-height: 1.3;
+            background: linear-gradient(to right, #fff, #94A3B8);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            margin-bottom: 5px;
+        }
+        .hero-sub { font-size: 12px; color: #64748B; font-style: italic; }
+
+        /* --- GRID --- */
+        .app-grid {
+            padding: 0 20px 40px;
+            display: flex; flex-direction: column; gap: 30px;
+            max-width: 800px; margin: 0 auto;
+        }
+
+        .category-title {
+            font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px;
+            color: var(--neon-blue); margin-bottom: 12px; font-weight: 800;
+            display: flex; align-items: center; gap: 10px;
+        }
+        .category-title::after { content: ''; flex: 1; height: 1px; background: var(--border-light); }
+
+        .grid-section { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+
+        .tile {
+            background: var(--glass-panel); border: 1px solid var(--border-light);
+            border-radius: 16px; aspect-ratio: 1/1;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            cursor: pointer; position: relative; overflow: hidden; transition: 0.2s;
+        }
+        .tile:hover { border-color: var(--neon-blue); background: rgba(0, 240, 255, 0.05); transform: translateY(-3px); }
+        .tile:active { transform: scale(0.95); }
+
+        .tile-icon { font-size: 22px; margin-bottom: 6px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.2)); }
+        .tile-name { font-size: 9px; font-weight: 600; text-align: center; color: var(--text-muted); line-height: 1.2; padding: 0 2px; }
+
+        .tile-exam { border-color: rgba(255, 61, 0, 0.3); } 
+        .tile-exam .tile-icon { filter: drop-shadow(0 0 5px rgba(255, 61, 0, 0.5)); }
+        
+        .tile-gold { border-color: rgba(255, 215, 0, 0.3); }
+        .tile-gold .tile-icon { filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5)); }
+
+        /* --- PROFILE MODAL --- */
+        .profile-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2000;
+            backdrop-filter: blur(10px); display: none;
+            justify-content: center; align-items: flex-end; 
+        }
+        .profile-overlay.open { display: flex; }
+
+        .profile-sheet {
+            background: #0F172A; width: 100%; max-width: 500px;
+            border-radius: 24px 24px 0 0; padding: 30px;
+            border-top: 1px solid var(--neon-blue);
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.5);
+            max-height: 85vh; overflow-y: auto;
+            animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            position: relative; 
+        }
+        
+        @media(min-width: 768px) {
+            .profile-overlay { align-items: center; }
+            .profile-sheet { border-radius: 24px; max-height: 90vh; }
+        }
+
+        .close-profile {
+            position: absolute; top: 15px; right: 15px; background: transparent; 
+            border: none; color: #94A3B8; font-size: 28px; cursor: pointer; line-height: 1; z-index: 10; 
+        }
+        .close-profile:hover { color: var(--danger); }
+
+        .avatar-wrapper { width: 100px; height: 100px; margin: 0 auto 10px; position: relative; }
+        .user-avatar-lg { width: 100%; height: 100%; border-radius: 50%; border: 3px solid var(--neon-blue); object-fit: cover; }
+        
+        .photo-actions { display: flex; justify-content: center; gap: 8px; margin-bottom: 20px; }
+        .photo-btn { 
+            background: rgba(255,255,255,0.05); border: 1px solid var(--border-light); 
+            color: var(--text-muted); font-size: 10px; padding: 6px 10px; 
+            border-radius: 6px; cursor: pointer; transition: 0.2s; font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        .photo-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+
+        .p-name { text-align: center; font-family: 'Space Grotesk', sans-serif; font-size: 24px; font-weight: 700; color: white; }
+        .p-pin { text-align: center; color: var(--neon-blue); font-family: monospace; font-size: 14px; margin-bottom: 20px; }
+
+        .details-box {
+            background: rgba(255,255,255,0.03); border-radius: 12px; padding: 15px;
+            border: 1px solid var(--border-light); margin-bottom: 20px;
+        }
+        .d-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .d-row:last-child { border-bottom: none; }
+        .d-lbl { color: #94A3B8; font-size: 12px; }
+        .d-val { color: white; font-size: 13px; font-weight: 600; text-align: right; }
+
+        select option { background: #0F172A; color: white; }
+
+        .btn-stack { display: flex; flex-direction: column; gap: 10px; }
+        .btn-action {
+            width: 100%; padding: 14px; border-radius: 12px; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            font-family: 'Space Grotesk', sans-serif; border: none;
+        }
+        .btn-gold { background: linear-gradient(135deg, #FFD700, #FFA500); color: black; }
+        .btn-red { background: rgba(255, 61, 0, 0.1); color: var(--danger); border: 1px solid var(--danger); font-size: 12px; }
+
+        /* --- FOOTER & BANNER PADDING --- */
+        footer { 
+            text-align: center; padding: 30px 20px; border-top: 1px solid var(--border-light); 
+            margin-top: 20px; background: rgba(0,0,0,0.2);
+            margin-bottom: 60px; 
+        }
+        footer p { font-size: 12px; color: #64748B; margin-bottom: 5px; }
+
+        /* --- INTERSTITIAL (POP-UP) AD CSS --- */
+        .ad-interstitial-overlay {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 9999;
+            backdrop-filter: blur(15px); display: none;
+            justify-content: center; align-items: center; padding: 20px;
+        }
+        .ad-interstitial-overlay.open { display: flex; }
+
+        .ad-popup-card {
+            background: rgba(15, 23, 42, 0.8); width: 95%; max-width: 380px;
+            border-radius: 24px; padding: 25px;
+            border: 1px solid var(--neon-blue);
+            box-shadow: 0 0 50px rgba(0, 240, 255, 0.3);
+            position: relative; text-align: center;
+            animation: popIn 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .close-ad {
+            position: absolute; top: -15px; right: -15px; background: var(--bg-deep); 
+            border: 2px solid var(--neon-blue); color: var(--neon-blue); width: 35px; height: 35px;
+            border-radius: 50%; font-size: 20px; cursor: pointer; display: none;
+            align-items: center; justify-content: center; font-weight: bold;
+        }
+        .close-ad.visible { display: flex; }
+
+        .ad-tag { font-size: 10px; color: var(--neon-gold); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+        .ad-image-main { width: 100%; border-radius: 16px; margin-bottom: 15px; border: 1px solid var(--border-light); cursor: pointer;}
+        .ad-popup-title { font-family: 'Space Grotesk', sans-serif; font-size: 18px; color: white; margin-bottom: 5px; }
+        .ad-popup-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 20px; }
+        
+        /* --- BOTTOM BANNER AD CSS --- */
+        .ad-banner-bottom {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 60px;
+            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
+            border-top: 1px solid var(--neon-blue);
+            z-index: 999; display: none; 
+            justify-content: center; align-items: center; padding: 0 10px;
+            box-shadow: 0 -5px 20px rgba(0, 240, 255, 0.15);
+        }
+        .ad-banner-bottom.visible { display: flex; }
+        .ad-banner-img { height: 100%; width: auto; max-width: 100%; object-fit: contain; cursor: pointer; }
+
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+    <div class="ad-interstitial-overlay" id="interstitialAd">
+        <div class="ad-popup-card">
+            <button class="close-ad" id="adCloseBtn" onclick="closePopupAd()">×</button>
+            <div class="ad-tag">⚡ Suggested For You</div>
+            <div class="ad-popup-title">Crack Diploma with Top Scores</div>
+            
+            <a href="https://play.google.com/store/apps/details?id=co.shield.potnf" target="_blank">
+                <img src="ad photos/sai medha pop up ad.png" alt="Saimedha Ad" class="ad-image-main">
+            </a>
+            
+            <div class="ad-popup-sub">Premium courses available with test series packages on Saimedha App. Download Now!</div>
+            
+            <button class="btn-action btn-gold" onclick="window.open('https://play.google.com/store/apps/details?id=co.shield.potnf', '_blank')">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" style="height:25px;" alt="Play Store">
+            </button>
+        </div>
+    </div>
+
+    <div class="ad-banner-bottom" id="bottomBanner">
+        <a href="https://play.google.com/store/apps/details?id=co.shield.potnf" target="_blank" style="height:100%; display:block;">
+            <img src="ad photos/sai medha banner ad.png" alt="Saimedha Banner" class="ad-banner-img">
+        </a>
+    </div>
+
+    <header>
+        <a href="#" class="logo">
+            <span class="gig">GIG </span><span class="highlight">The Last Minute Saviour</span>
+        </a>
+        <div class="profile-trigger" onclick="openProfile()">
+            <img src="" id="headerAvatar" alt="Profile">
+        </div>
+    </header>
+
+    <div class="hero">
+        <div class="hero-quote" id="dynamicQuote">Loading motivation...</div>
+        <div class="hero-sub"></div>
+    </div>
+
+    <div class="app-grid">
+        <div class="category-title">📚 Academics & Exams</div>
+        <div class="grid-section">
+            <div class="tile tile-exam" onclick="window.location.href='exam_saviour.html'"><div class="tile-icon">🔥</div><div class="tile-name">Exam Saviour</div></div>
+            <div class="tile" onclick="window.location.href='tracker.html'"><div class="tile-icon">📊</div><div class="tile-name">Study Tracker</div></div>
+            <div class="tile" onclick="window.location.href='papers.html'"><div class="tile-icon">📝</div><div class="tile-name">Preavious Year Papers</div></div>
+            <div class="tile" onclick="window.location.href='ebooks.html'"><div class="tile-icon">📖</div><div class="tile-name">E-Books</div></div>
+            <div class="tile" onclick="window.location.href='videos.html'"><div class="tile-icon">🎥</div><div class="tile-name">Learning Videos</div></div>
+            <div class="tile" onclick="window.location.href='tools.html'"><div class="tile-icon">💻</div><div class="tile-name">Online Tools</div></div>
+            <div class="tile" onclick="window.location.href='ecet.html'"><div class="tile-icon">⚡</div><div class="tile-name">ECET</div></div>
+        </div>
+
+        <div class="category-title">🏫 Campus & Info</div>
+        <div class="grid-section">
+            <div class="tile" onclick="window.location.href='college.html'"><div class="tile-icon">🏛️</div><div class="tile-name">About Polytechnic & College</div></div>
+            <div class="tile" onclick="window.location.href='attendance.html'"><div class="tile-icon">📋</div><div class="tile-name">Attendance</div></div>
+            <div class="tile" onclick="window.location.href='branch.html'"><div class="tile-icon">ℹ️</div><div class="tile-name">Know About Your Branch</div></div>           
+            <div class="tile" onclick="window.location.href='idcard.html'"><div class="tile-icon">🆔</div><div class="tile-name">ID Card</div></div>
+            <div class="tile" onclick="window.location.href='scholarships.html'"><div class="tile-icon">🪙</div><div class="tile-name">Scholarships</div></div>
+            <div class="tile" onclick="window.location.href='projects.html'"><div class="tile-icon">🛠️</div><div class="tile-name">Projects</div></div>
+            <div class="tile" onclick="window.location.href='SkillUp.html'"><div class="tile-icon">🤝</div><div class="tile-name">Skill Up</div></div>
+            <div class="tile" onclick="window.location.href='resumebuilder.html'"><div class="tile-icon">📂</div><div class="tile-name">Resume Builder</div></div>
+            <div class="tile tile-gold" onclick="window.location.href='jobs.html'"><div class="tile-icon">💼</div><div class="tile-name">Jobs</div></div>
+        </div>
+
+        <div class="category-title">✨ Life & Extras</div>
+        <div class="grid-section">
+            <div class="tile" onclick="window.location.href='rent.html'"><div class="tile-icon">🔄</div><div class="tile-name">Rent</div></div>
+            <div class="tile" onclick="window.location.href='finds.html'"><div class="tile-icon">📍</div><div class="tile-name">Finds</div></div>
+            <div class="tile" onclick="window.location.href='community.html'"><div class="tile-icon">🌍</div><div class="tile-name">Community</div></div>
+            <div class="tile" onclick="window.location.href='about.html'"><div class="tile-icon">ℹ️</div><div class="tile-name">About GIG</div></div>
+            <div class="tile" onclick="window.location.href='bus.html'"><div class="tile-icon">🚌</div><div class="tile-name">RTC Bus</div></div>
+        </div>
+    </div>
+
+    <div class="profile-overlay" id="profileModal">
+        <div class="profile-sheet">
+            <button class="close-profile" onclick="closeProfile()">×</button>
+            
+            <div class="avatar-wrapper">
+                <img src="" id="modalAvatar" class="user-avatar-lg">
+                <input type="file" id="imgUpload" style="display: none;" accept="image/*" onchange="uploadPhoto(this)">
+            </div>
+            
+            <div class="photo-actions">
+                <button class="photo-btn" onclick="document.getElementById('imgUpload').click()">📷 Change</button>
+                <button class="photo-btn" onclick="generateAIProfile()">✨ GIG Generator</button>
+                <button class="photo-btn" onclick="deleteProfilePhoto()">🗑️ Delete</button>
+            </div>
+
+            <div class="p-name" id="pName">Loading...</div>
+            <div class="p-pin" id="pPin">@PIN</div>
+
+            <div class="details-box">
+                <div class="d-row"><span class="d-lbl">College</span><span class="d-val" id="pCollege">---</span></div>
+                <div class="d-row"><span class="d-lbl">Curriculum</span><span class="d-val" id="pCurriculum">---</span></div>
+                <div class="d-row"><span class="d-lbl">Branch</span><span class="d-val" id="pBranch">---</span></div>
+                
+                <div class="d-row" style="border-bottom: none; padding-bottom: 0;">
+                    <span class="d-lbl">Semester</span>
+                    <span class="d-val" id="pSemWrapper">
+                        <span id="pSem">---</span>
+                        <button onclick="enableSemEdit()" style="background:none; border:none; color:var(--neon-blue); cursor:pointer; font-size:12px; margin-left:8px;">✏️ Edit</button>
+                    </span>
+
+                    <span class="d-val" id="pSemEditWrapper" style="display:none; align-items:center; gap:5px;">
+                        <select id="editSemSelect" style="background:rgba(255,255,255,0.1); color:white; border:1px solid var(--neon-blue); border-radius:4px; padding:2px 5px; font-family:'Plus Jakarta Sans'; font-size:12px; outline:none;">
+                            <option value="1st Sem">1st Sem</option><option value="2nd Sem">2nd Sem</option>
+                            <option value="3rd Sem">3rd Sem</option><option value="4th Sem">4th Sem</option>
+                            <option value="5th Sem">5th Sem</option><option value="6th Sem">6th Sem</option>
+                        </select>
+                        <button id="saveSemBtn" onclick="saveNewSemester()" style="background:var(--neon-blue); border:none; color:black; cursor:pointer; font-size:10px; padding:4px 8px; border-radius:4px; font-weight:bold;">SAVE</button>
+                    </span>
+                </div>
+                
+                <div style="text-align: right; padding-bottom: 8px; border-bottom: 1px solid rgba(255,255,255,0.05);">
+                    <span style="font-size: 9px; color: var(--text-muted); font-style: italic;">* Manually update your semester after completion.</span>
+                </div>
+
+                <div class="d-row" style="padding-top: 8px;"><span class="d-lbl">Mobile</span><span class="d-val" id="pMobile">---</span></div>
+                <div class="d-row"><span class="d-lbl">Email</span><span class="d-val" id="pEmail" style="font-size:11px;">---</span></div>
+            </div>
+
+            <div class="btn-stack">
+                <button class="btn-action btn-gold" onclick="window.location.href='donate.html'"><span>💖</span> Donate & Support GIG</button>
+                <button class="btn-action btn-red" onclick="logout()">🚪 Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2026 gigforstudents</p>
+        <p>Built with ❤️ for Diploma Students.</p>
+    </footer>
+
+    <script src="api.js"></script>
+
+    <script>
+        // --- PREVENT BACK-BUTTON BUG ---
+        // This ensures if a user logs out, they absolutely cannot use the back button to re-enter.
+        window.addEventListener('pageshow', function (event) {
+            if (!getGIGSession()) {
+                window.location.replace('login.html');
+            }
+        });
+
+        const quotes = [
+            "The expert in anything was once a beginner. I think the next expert will be you, [NAME].",
+            "Don't watch the clock, do what it does. Keep going, [NAME].",
+            "Future Engineer [NAME], your only limit is your mind.",
+            "Success is the sum of small efforts, repeated day in and day out, [NAME].",
+            "Believe you can and you're halfway there, [NAME].",
+            "[NAME], wake up with determination. Go to bed with satisfaction.",
+            "The future belongs to those who believe in the beauty of their dreams, [NAME].",
+            "Study hard, [NAME]. Your future self will thank you.",
+            "It always seems impossible until it's done. You got this, [NAME].",
+            "[NAME], dream big and dare to fail.",
+            "You’re braver than you believe, and stronger than you seem, and smarter than you think [NAME].",
+            "In every day, there are 1,440 minutes. That means we have 1,440 daily opportunities to make a positive impact [NAME].",
+            "The only time you fail is when you fall down and stay down [NAME].",
+            "It’s not whether you get knocked down, it’s whether you get up [NAME].",
+            "The struggle you’re in today is developing the strength you need tomorrow [NAME].",
+            "Once you replace negative thoughts with positive ones, you’ll start having positive results [NAME].",
+            "If you want light to come into your life, you need to stand where it is shining [NAME].",
+            "Winning doesn’t always mean being first. Winning means you’re doing better than you’ve done before [NAME].",
+            "You are never too old to set another goal or dream a new dream [NAME].",
+            "Every day may not be good… but there’s something good in every day [NAME]."
+        ];
+
+        let currentUser = null;
+
+        window.onload = function() {
+            currentUser = getGIGSession(); 
+
+            if (currentUser) {
+                const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+                document.getElementById('dynamicQuote').innerText = randomQuote.replace('[NAME]', currentUser.name.split(' ')[0]);
+
+                setInitialAvatar();
+
+                document.getElementById('pName').innerText = currentUser.name;
+                document.getElementById('pPin').innerText = '@' + currentUser.pin;
+                document.getElementById('pCollege').innerText = currentUser.college;
+                document.getElementById('pCurriculum').innerText = currentUser.curriculum || '---';
+                document.getElementById('pBranch').innerText = currentUser.branch;
+                document.getElementById('pSem').innerText = currentUser.sem;
+                document.getElementById('pMobile').innerText = currentUser.mobile;
+                document.getElementById('pEmail').innerText = currentUser.email || 'Not Set';
+                
+                document.getElementById('editSemSelect').value = currentUser.sem;
+                
+                handleAdDisplay();
+            } else {
+                window.location.replace('login.html'); // Used replace instead of href
+            }
+        };
+
+        function handleAdDisplay() {
+            const adShown = sessionStorage.getItem('interstitialAdShown');
+            if (!adShown) {
+                document.getElementById('interstitialAd').classList.add('open');
+                setTimeout(() => {
+                    document.getElementById('adCloseBtn').classList.add('visible');
+                }, 5000);
+                sessionStorage.setItem('interstitialAdShown', 'true');
+            } else {
+                showBannerAd();
+            }
+        }
+
+        function closePopupAd() {
+            document.getElementById('interstitialAd').classList.remove('open');
+            showBannerAd();
+        }
+
+        function showBannerAd() {
+            document.getElementById('bottomBanner').classList.add('visible');
+        }
+
+        function setInitialAvatar() {
+            const localPhoto = getProfilePhoto();
+            if(localPhoto) {
+                document.getElementById('headerAvatar').src = localPhoto;
+                document.getElementById('modalAvatar').src = localPhoto;
+            } else {
+                const defaultUrl = `https://ui-avatars.com/api/?name=${currentUser.name}&background=00F0FF&color=000&bold=true&size=200`;
+                document.getElementById('headerAvatar').src = defaultUrl;
+                document.getElementById('modalAvatar').src = defaultUrl;
+            }
+        }
+
+        function uploadPhoto(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    const dataUrl = e.target.result;
+                    document.getElementById('modalAvatar').src = dataUrl;
+                    document.getElementById('headerAvatar').src = dataUrl;
+                    storeProfilePhoto(dataUrl); 
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function generateAIProfile() {
+            const colors = ['00F0FF', '7000FF', 'FFD700', 'FF3D00', '00BFA5'];
+            const randomBg = colors[Math.floor(Math.random() * quotes.length) % colors.length];
+            const aiUrl = `https://ui-avatars.com/api/?name=${currentUser.name}&background=${randomBg}&color=fff&bold=true&size=200`;
+            
+            document.getElementById('modalAvatar').src = aiUrl;
+            document.getElementById('headerAvatar').src = aiUrl;
+            storeProfilePhoto(aiUrl);
+        }
+
+        function deleteProfilePhoto() {
+            if(confirm("Are you sure you want to remove your profile photo?")) {
+                localStorage.removeItem('gigUserPhoto');
+                setInitialAvatar();
+            }
+        }
+
+        function enableSemEdit() {
+            document.getElementById('pSemWrapper').style.display = 'none';
+            document.getElementById('pSemEditWrapper').style.display = 'flex';
+        }
+
+        async function saveNewSemester() {
+            const newSem = document.getElementById('editSemSelect').value;
+            const btn = document.getElementById('saveSemBtn');
+            
+            btn.innerText = "SAVING...";
+            btn.disabled = true;
+
+            let response = await GIG_API.updateSemester(currentUser.pin, newSem);
+
+            if(response && !response.error) {
+                currentUser.sem = newSem;
+                localStorage.setItem('gigUser', JSON.stringify(currentUser));
+                
+                document.getElementById('pSem').innerText = newSem;
+                document.getElementById('pSemWrapper').style.display = 'inline-block';
+                document.getElementById('pSemEditWrapper').style.display = 'none';
+                alert("Semester updated successfully!");
+            } else {
+                alert("Failed to update semester. Check your connection.");
+            }
+
+            btn.innerText = "SAVE";
+            btn.disabled = false;
+        }
+
+        function logout() {
+            if(confirm("Are you sure you want to log out?")) {
+                localStorage.removeItem('gigUser');
+                sessionStorage.removeItem('interstitialAdShown'); 
+                // Using .replace() OVERWRITES the browser history so they can't click back!
+                window.location.replace('login.html');
+            }
+        }
+
+        function openProfile() { document.getElementById('profileModal').classList.add('open'); }
+        function closeProfile() { document.getElementById('profileModal').classList.remove('open'); }
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === "Escape") { closeProfile(); }
+        });
+    </script>
+</body>
+</html>
